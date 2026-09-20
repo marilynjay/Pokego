@@ -1,0 +1,1563 @@
+{
+ "generatedAt": "2026-09-20",
+ "moves": {
+  "4": [
+   {
+    "name": "Dragon Breath",
+    "type": "Dragon",
+    "class": "special"
+   },
+   {
+    "name": "Dragon Rage",
+    "type": "Dragon",
+    "class": "special"
+   },
+   {
+    "name": "Ember",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Fire Fang",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Fire Spin",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Flame Burst",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Flamethrower",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Flare Blitz",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Fury Swipes",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Inferno",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Leer",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Metal Claw",
+    "type": "Steel",
+    "class": "physical"
+   },
+   {
+    "name": "Rage",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Scary Face",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Scratch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Slash",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Smokescreen",
+    "type": "Normal",
+    "class": "status"
+   }
+  ],
+  "25": [
+   {
+    "name": "Agility",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Discharge",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Double Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Double Team",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Electro Ball",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Feint",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Iron Tail",
+    "type": "Steel",
+    "class": "physical"
+   },
+   {
+    "name": "Light Screen",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Nasty Plot",
+    "type": "Dark",
+    "class": "status"
+   },
+   {
+    "name": "Nuzzle",
+    "type": "Electric",
+    "class": "physical"
+   },
+   {
+    "name": "Play Nice",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Quick Attack",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Slam",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Spark",
+    "type": "Electric",
+    "class": "physical"
+   },
+   {
+    "name": "Sweet Kiss",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Thunder",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Thunder Shock",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Thunder Wave",
+    "type": "Electric",
+    "class": "status"
+   },
+   {
+    "name": "Thunderbolt",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Wild Charge",
+    "type": "Electric",
+    "class": "physical"
+   }
+  ],
+  "54": [
+   {
+    "name": "Amnesia",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Aqua Tail",
+    "type": "Water",
+    "class": "physical"
+   },
+   {
+    "name": "Bubble",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Confusion",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Disable",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Fury Swipes",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Hydro Pump",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Hypnosis",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Psybeam",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psych Up",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Scratch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Screech",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Soak",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Surf",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Water Gun",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Water Pulse",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Water Sport",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Wonder Room",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Zen Headbutt",
+    "type": "Psychic",
+    "class": "physical"
+   }
+  ],
+  "94": [
+   {
+    "name": "Astonish",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Confuse Ray",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Curse",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Dark Pulse",
+    "type": "Dark",
+    "class": "special"
+   },
+   {
+    "name": "Destiny Bond",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Disable",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Dream Eater",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Haze",
+    "type": "Ice",
+    "class": "status"
+   },
+   {
+    "name": "Hex",
+    "type": "Ghost",
+    "class": "special"
+   },
+   {
+    "name": "Hypnosis",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Lick",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Mean Look",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Night Shade",
+    "type": "Ghost",
+    "class": "special"
+   },
+   {
+    "name": "Nightmare",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Payback",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Perish Song",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Poison Gas",
+    "type": "Poison",
+    "class": "status"
+   },
+   {
+    "name": "Reflect Type",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Shadow Ball",
+    "type": "Ghost",
+    "class": "special"
+   },
+   {
+    "name": "Shadow Punch",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Smog",
+    "type": "Poison",
+    "class": "special"
+   },
+   {
+    "name": "Spite",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Sucker Punch",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Toxic",
+    "type": "Poison",
+    "class": "status"
+   },
+   {
+    "name": "Venoshock",
+    "type": "Poison",
+    "class": "special"
+   },
+   {
+    "name": "Will-O-Wisp",
+    "type": "Fire",
+    "class": "status"
+   }
+  ],
+  "122": [
+   {
+    "name": "Barrier",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Confusion",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Dazzling Gleam",
+    "type": "Fairy",
+    "class": "special"
+   },
+   {
+    "name": "Double Slap",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Encore",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Guard Swap",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Hypnosis",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Iron Defense",
+    "type": "Steel",
+    "class": "status"
+   },
+   {
+    "name": "Light Screen",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Magical Leaf",
+    "type": "Grass",
+    "class": "special"
+   },
+   {
+    "name": "Meditate",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Misty Terrain",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Pound",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Power Swap",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Protect",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Psybeam",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psychic",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psywave",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Quick Guard",
+    "type": "Fighting",
+    "class": "status"
+   },
+   {
+    "name": "Recycle",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Reflect",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Role Play",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Safeguard",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Substitute",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Sucker Punch",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Teeter Dance",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Trick",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Wide Guard",
+    "type": "Rock",
+    "class": "status"
+   },
+   {
+    "name": "Zen Headbutt",
+    "type": "Psychic",
+    "class": "physical"
+   }
+  ],
+  "134": [
+   {
+    "name": "Acid Armor",
+    "type": "Poison",
+    "class": "status"
+   },
+   {
+    "name": "Aqua Ring",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Aqua Tail",
+    "type": "Water",
+    "class": "physical"
+   },
+   {
+    "name": "Aurora Beam",
+    "type": "Ice",
+    "class": "special"
+   },
+   {
+    "name": "Baby-Doll Eyes",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Bubble",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Covet",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Double Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Double-Edge",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Haze",
+    "type": "Ice",
+    "class": "status"
+   },
+   {
+    "name": "Helping Hand",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Hydro Pump",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Last Resort",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Mist",
+    "type": "Ice",
+    "class": "status"
+   },
+   {
+    "name": "Muddy Water",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Quick Attack",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Sand Attack",
+    "type": "Ground",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Tackle",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Take Down",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Water Gun",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Water Pulse",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Yawn",
+    "type": "Normal",
+    "class": "status"
+   }
+  ],
+  "135": [
+   {
+    "name": "Agility",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Baby-Doll Eyes",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Covet",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Discharge",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Double Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Double-Edge",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Helping Hand",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Last Resort",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Pin Missile",
+    "type": "Bug",
+    "class": "physical"
+   },
+   {
+    "name": "Quick Attack",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Sand Attack",
+    "type": "Ground",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Tackle",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Take Down",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Thunder",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Thunder Fang",
+    "type": "Electric",
+    "class": "physical"
+   },
+   {
+    "name": "Thunder Shock",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Thunder Wave",
+    "type": "Electric",
+    "class": "status"
+   },
+   {
+    "name": "Thunderbolt",
+    "type": "Electric",
+    "class": "special"
+   },
+   {
+    "name": "Yawn",
+    "type": "Normal",
+    "class": "status"
+   }
+  ],
+  "196": [
+   {
+    "name": "Baby-Doll Eyes",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Confusion",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Covet",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Double-Edge",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Future Sight",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Helping Hand",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Last Resort",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Morning Sun",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Power Swap",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Psybeam",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psych Up",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Psychic",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Quick Attack",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Sand Attack",
+    "type": "Ground",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Tackle",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Take Down",
+    "type": "Normal",
+    "class": "physical"
+   }
+  ],
+  "209": [
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Crunch",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Fire Fang",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Headbutt",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Ice Fang",
+    "type": "Ice",
+    "class": "physical"
+   },
+   {
+    "name": "Last Resort",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Lick",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Payback",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Play Rough",
+    "type": "Fairy",
+    "class": "physical"
+   },
+   {
+    "name": "Rage",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Roar",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Scary Face",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Tackle",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Take Down",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Taunt",
+    "type": "Dark",
+    "class": "status"
+   },
+   {
+    "name": "Thunder Fang",
+    "type": "Electric",
+    "class": "physical"
+   }
+  ],
+  "272": [
+   {
+    "name": "Absorb",
+    "type": "Grass",
+    "class": "special"
+   },
+   {
+    "name": "Astonish",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Bubble Beam",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Energy Ball",
+    "type": "Grass",
+    "class": "special"
+   },
+   {
+    "name": "Fake Out",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Flail",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Fury Swipes",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Giga Drain",
+    "type": "Grass",
+    "class": "special"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Hydro Pump",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Knock Off",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Mega Drain",
+    "type": "Grass",
+    "class": "special"
+   },
+   {
+    "name": "Mist",
+    "type": "Ice",
+    "class": "status"
+   },
+   {
+    "name": "Nature Power",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Rain Dance",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Teeter Dance",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Water Gun",
+    "type": "Water",
+    "class": "special"
+   },
+   {
+    "name": "Zen Headbutt",
+    "type": "Psychic",
+    "class": "physical"
+   }
+  ],
+  "725": [
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Double Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Ember",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Fire Fang",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Flamethrower",
+    "type": "Fire",
+    "class": "special"
+   },
+   {
+    "name": "Flare Blitz",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Fury Swipes",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Leer",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Lick",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Outrage",
+    "type": "Dragon",
+    "class": "physical"
+   },
+   {
+    "name": "Roar",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Scary Face",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Scratch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Swagger",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Thrash",
+    "type": "Normal",
+    "class": "physical"
+   }
+  ],
+  "778": [
+   {
+    "name": "Astonish",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Baby-Doll Eyes",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Double Team",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Feint Attack",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Hone Claws",
+    "type": "Dark",
+    "class": "status"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Pain Split",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Play Rough",
+    "type": "Fairy",
+    "class": "physical"
+   },
+   {
+    "name": "Scratch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Shadow Claw",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Shadow Sneak",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Slash",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Splash",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Wood Hammer",
+    "type": "Grass",
+    "class": "physical"
+   }
+  ],
+  "802": [
+   {
+    "name": "Assurance",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Close Combat",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Counter",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Drain Punch",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Endeavor",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Feint",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Fire Punch",
+    "type": "Fire",
+    "class": "physical"
+   },
+   {
+    "name": "Force Palm",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Ice Punch",
+    "type": "Ice",
+    "class": "physical"
+   },
+   {
+    "name": "Jump Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Laser Focus",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Psych Up",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Pursuit",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Role Play",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Rolling Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Shadow Punch",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Shadow Sneak",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Spectral Thief",
+    "type": "Ghost",
+    "class": "physical"
+   },
+   {
+    "name": "Sucker Punch",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Thunder Punch",
+    "type": "Electric",
+    "class": "physical"
+   }
+  ],
+  "810": [
+   {
+    "name": "Branch Poke",
+    "type": "Grass",
+    "class": "physical"
+   },
+   {
+    "name": "Endeavor",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Knock Off",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Razor Leaf",
+    "type": "Grass",
+    "class": "physical"
+   },
+   {
+    "name": "Scratch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Screech",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Slam",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Taunt",
+    "type": "Dark",
+    "class": "status"
+   },
+   {
+    "name": "Uproar",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Wood Hammer",
+    "type": "Grass",
+    "class": "physical"
+   }
+  ]
+ }
+}

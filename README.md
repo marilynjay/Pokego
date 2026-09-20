@@ -20,6 +20,9 @@ It does not play the game. It watches, and rules on it.
 Three things can happen: **caught**, **broke out** (it's still right there, throw
 again) or **ran to another room** (go and find it). Each has its own sound.
 
+**A Pokémon that breaks out uses a move on her**, and the screen says what to do
+about it — see below.
+
 After a break-out, **Throw again** throws — one tap, not two. She is still
 aiming at the same animal, and the ball she picked stays picked. The berry and
 ball rows stay on screen, so a berry can go in first if she hands one over.
@@ -102,6 +105,38 @@ child is jabbing at and it isn't for her.
 
 The countdown is stored, so reloading the page isn't a way around it. The length
 is a setting: off, 1, 3, 5 or 10 minutes.
+
+### It fights back
+
+Wriggling free isn't free. A Pokémon that breaks out of the ball — but doesn't
+run off — uses one of its own moves, and the screen tells her what to do about
+it:
+
+> **Pikachu used Thunder Wave!**
+> It's being sneaky! Wiggle about so it doesn't work!
+
+The moves are real. `data/moves.json` holds every move each of the fourteen
+learns by levelling up, in any game, built from PokéAPI's source CSVs by
+`npm run build-moves`. That's its signature set rather than every TM it could
+ever be taught — Gengar gets Hypnosis and Shadow Ball, not Thunderbolt. It runs
+from 11 moves for Grookey to 33 for Mr. Mime, and the tests fail if any of them
+drops below 8, so nobody quietly ends up with three.
+
+What she should do about it comes from the move's **type**, since that's what
+decides whether it's a shower of sparks or a faceful of sludge — duck, roll,
+blow it out like a candle, hide behind your hands. Status moves don't hit you,
+they try something on you, so they get their own set of lines about being
+sneaky. Every line is a physical thing a three-year-old can do standing in a
+living room.
+
+Nothing uses a move from another room: a getaway means it isn't there any more.
+A catch clears the line, and so does meeting someone new.
+
+Picking the move and the line draws from a **separate generator** from the one
+that decides catches. Cosmetic randomness shifting the sequence that settles
+whether a ball works would be a bug in itself, and in the tests — where
+`Math.random` is a scripted queue — adding a line of flavour text would
+otherwise quietly change an outcome somewhere else.
 
 ### The Moon Ball
 
@@ -195,8 +230,15 @@ types — then fetch its cry:
 npm run add-mon -- 133
 ```
 
-That pulls down its artwork (normal and shiny) and its cry. The pick grid, the
-Moon Ball rule and the collection all follow from the data file.
+That pulls down its artwork (normal and shiny) and its cry. Then rebuild the
+move lists so it has something to fight back with:
+
+```sh
+npm run build-moves
+```
+
+The pick grid, the Moon Ball rule and the collection all follow from the data
+file.
 
 The cry step needs `ffmpeg` on PATH (or `pip install imageio-ffmpeg`): PokéAPI
 publishes cries as Ogg Vorbis, which Safari cannot decode at all, so an iPhone
@@ -211,6 +253,8 @@ would play nothing without the conversion to MP3.
 | `assets/art/` | Artwork, normal and shiny, committed rather than hotlinked |
 | `assets/cries/` | One MP3 cry each, converted from PokéAPI's Ogg |
 | `assets/icon.svg` | Home-screen icon, drawn by hand |
+| `data/moves.json` | The moves each one learns, for when it breaks out |
+| `tools/build-moves.mjs` | Rebuilds that from PokéAPI's CSVs |
 | `tools/add-mon.mjs` | Fetches one more Pokémon's artwork and cry |
 | `tools/make-icons.mjs` | Rasterises the SVG to the PNGs iOS and Android need |
 | `tests/smoke.mjs` | Playwright walk-through of the whole game |

@@ -146,6 +146,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 /* Deliberately small and text-only: this one is for a grown-up, and it sits in
    the middle of a screen a small child is jabbing at. */
 .unlock { min-height: 40px !important; font-size: .85rem !important; font-weight: 600 !important; color: var(--dim); margin-top: 12px; border-style: dashed; }
+/* The move it fires off after wriggling free. Loud enough to interrupt, since
+   it is a cue for her to physically do something. */
+.moveout { text-align: center; margin-top: 12px; padding: 12px 14px; border-radius: 16px;
+  background: color-mix(in srgb, var(--warn) 12%, var(--panel));
+  border: 2px solid color-mix(in srgb, var(--warn) 35%, var(--panel)); }
+.moveout b { display: block; font-size: 1.15rem; color: var(--warn); }
+.moveout span { display: block; font-size: 1.02rem; font-weight: 600; margin-top: 5px; }
 .hint { color: var(--dim); font-size: .85rem; text-align: center; margin-top: 8px; min-height: 1.3em; }
 
 /* Thrown ball + wobble */
@@ -223,6 +230,7 @@ select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px sol
     </div>
     <div class="headline" id="headline"></div>
     <div class="says" id="says"></div>
+    <div class="moveout" id="moveOut" hidden><b id="moveName"></b><span id="moveDodge"></span></div>
 
     <div class="card" id="statCard">
       <h2>Stats</h2>
@@ -354,6 +362,11 @@ const saveAll = () => {
 const res = await fetch('data/pokemon.json');
 const DATA = await res.json();
 const MON = DATA.mon;
+
+// Real moves, built from PokéAPI by tools/build-moves.mjs. If the file is ever
+// missing the game carries on without the move line rather than failing.
+const MOVES = await fetch('data/moves.json')
+  .then((r) => (r.ok ? r.json() : null)).then((d) => d?.moves ?? {}).catch(() => ({}));
 const art = (mon, shiny) => `${DATA.spriteBase}/${shiny ? 'shiny/' : ''}${mon.id}.png`;
 
 // The Moon Ball's real rule — a boost only for Pokémon that evolve with a Moon
@@ -395,6 +408,49 @@ const wriggleFactor = (wriggle, calmed) => (calmed ? 1 + 0.2 * wriggle : 1 - 0.0
 // Pokémon converges on a catch instead of asking a three-year-old for twenty
 // throws, and nobody has to reach for the Master Ball to end a losing streak.
 const MISS_STEP = 0.1, MISS_CAP = 0.75;
+
+// What she should actually do about it. Keyed on the move's type, because that
+// is what decides whether it is a shower of sparks or a faceful of sludge.
+const DODGES = {
+  Electric: ['Zzzap! Shake your arms like a lightning bolt!', 'Sparks everywhere — hop on one foot to shake them off!'],
+  Fire:     ['Hot hot hot! Blow it out like a birthday candle!', 'Flames! Roll away along the floor!'],
+  Water:    ['Splash! Jump back so you don\'t get soaked!', 'A big wave — duck underneath it!'],
+  Grass:    ['Vines everywhere! Hop over them!', 'Leaves! Spin around and blow them away!'],
+  Ghost:    ['Spooky! Hide behind your hands!', 'Boo! Duck down and be very, very still!'],
+  Fairy:    ['Sparkles! Twirl straight through them!', 'Glitter everywhere — dance out of the way!'],
+  Psychic:  ['Your head goes all wobbly! Wiggle it off!', 'Everything is floaty — hold on to something!'],
+  Fighting: ['A big punch! Duck down low!', 'Quick kick — jump backwards!'],
+  Poison:   ['Yucky bubbles! Hold your nose and run!', 'Sludge! Tiptoe around it!'],
+  Normal:   ['Whoosh! Jump out of the way!', 'It charges straight at you — side-step!'],
+  Dark:     ['The lights go out! Cover your eyes!', 'Sneaky shadows — creep away quietly!'],
+  Steel:    ['Clang! Put your arms up like a shield!', 'Something hard and shiny — crouch down behind something!'],
+  Ice:      ['Brrr! Shiver it off!', 'Icy wind — wrap your arms around yourself!'],
+  Rock:     ['Rocks tumbling! Jump up high!', 'Look out below — cover your head!'],
+  Ground:   ['The floor rumbles! Jump up!', 'Sand everywhere — shut your eyes tight!'],
+  Flying:   ['A great big gust! Crouch down small!', 'It swoops at you — duck!'],
+  Bug:      ['Buzzy buzzy! Swat it away!', 'Something sticky — wriggle yourself free!'],
+  Dragon:   ['An enormous roar! Roll away!', 'Dragon wind — hold on tight!'],
+};
+// Status moves don't hit you, they try something on you, so they get their own.
+const SNEAKY = [
+  'It\'s being sneaky! Wiggle about so it doesn\'t work!',
+  'Don\'t look at it! Cover your eyes until it stops!',
+  'It\'s trying to make you sleepy — jump up and down to stay awake!',
+  'Stand as still as a statue so it misses you!',
+  'It\'s showing off! Stomp your feet and show it you\'re not scared!',
+];
+// Which move and which dodge line are pure flavour, so they draw from their own
+// generator rather than Math.random. Otherwise every break-out would shift the
+// sequence that decides catches — and in the tests, where Math.random is a
+// scripted queue, adding a line of flavour text would quietly change an outcome.
+let flavourSeed = (Date.now() ^ 0x9e3779b9) >>> 0;
+const flavour = () => {
+  flavourSeed = (Math.imul(flavourSeed, 1664525) + 1013904223) >>> 0;
+  return flavourSeed / 4294967296;
+};
+const any = (list) => list[Math.floor(flavour() * list.length)];
+const dodgeFor = (move) =>
+  move.class === 'status' ? any(SNEAKY) : any(DODGES[move.type] ?? DODGES.Normal);
 
 // --- Hand-drawn art --------------------------------------------------------
 // Drawn here rather than copied, so nothing copyrighted is committed.
@@ -650,6 +706,7 @@ function meet(mon, carriedMisses = 0) {
   $('berryCard').hidden = false;
   $('ballCard').hidden = false;
   $('hint').textContent = '';
+  $('moveOut').hidden = true;
   $('ball').className = '';
   paintMaster();
   show('meet');
@@ -700,6 +757,7 @@ async function throwBall() {
   $('berryCard').hidden = true;
   $('ballCard').hidden = true;
   $('hint').textContent = '';
+  $('moveOut').hidden = true;
   $('headline').innerHTML = current.shiny
     ? `A <span class="shinyword">sparkly ✨ ${current.mon.name}</span>!` : `A wild ${current.mon.name}!`;
 
@@ -797,6 +855,13 @@ function finish(outcome) {
     done.textContent = 'Catch another!';
   } else if (outcome === 'out') {
     $('headline').textContent = `Oh no — ${name} broke out!`;
+    const list = MOVES[current.mon.id];
+    if (list?.length) {
+      const move = any(list);
+      $('moveName').textContent = `${name} used ${move.name}!`;
+      $('moveDodge').textContent = dodgeFor(move);
+      $('moveOut').hidden = false;
+    }
     // The odds really are climbing; this is the only thing that says so.
     $('hint').textContent = current.misses >= 4 ? 'It is getting really tired. The next one could do it!'
       : current.misses >= 2 ? 'It is getting tired — keep going!'

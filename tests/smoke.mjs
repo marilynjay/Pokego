@@ -5,7 +5,7 @@
 //   npm test
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { existsSync, globSync } from 'node:fs';
+import { existsSync, globSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -461,6 +461,54 @@ console.log('\nyou can tell which version you are running');
   ok('a stored cooldown shows without waiting for a tick',
     (await page.locator('[data-ball="master"]').getAttribute('class')).includes('locked'));
   await ctx.close();
+}
+
+console.log('\nbreaking out, it uses a move on her');
+{
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.5, 0.99, 0.99, 0.0] });
+  const moves = JSON.parse(readFileSync(join(ROOT, 'data/moves.json'), 'utf8')).moves;
+
+  await meet(page, 'Gengar');
+  ok('nothing before a throw', await page.locator('#moveOut').isHidden());
+  await throwWith(page, 'poke');
+  ok('it uses one on the way out', await page.locator('#moveOut').isVisible());
+
+  const line = await page.locator('#moveName').innerText();
+  const named = line.replace(/^Gengar used /, '').replace(/!$/, '');
+  ok('named after the Pokémon that threw it', line.startsWith('Gengar used '), line);
+  ok('and it is a move Gengar really learns',
+    moves['94'].some((m) => m.name === named), `${named} not in Gengar's ${moves['94'].length} moves`);
+  ok('with something for her to do about it',
+    (await page.locator('#moveDodge').innerText()).trim().length > 12);
+
+  // A getaway means it is not there to do anything to her.
+  const hid = await throwAgain(page);
+  ok('the second throw is the getaway', hid.includes('another room'), hid);
+  ok('nothing uses a move from another room', await page.locator('#moveOut').isHidden());
+  await ctx.close();
+}
+{
+  // Caught, and a fresh encounter: neither should be carrying the last move.
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.5, 0.99, 0.0] });
+  await meet(page, 'Psyduck');
+  await throwWith(page, 'poke');
+  ok('a break-out shows one', await page.locator('#moveOut').isVisible());
+  const caught = await throwAgain(page);
+  ok('the next throw catches it', caught.includes('Gotcha'), caught);
+  ok('a catch clears it', await page.locator('#moveOut').isHidden());
+  await page.click('#doneBtn');
+  await meet(page, 'Litten');
+  ok('and so does meeting someone new', await page.locator('#moveOut').isHidden());
+  await ctx.close();
+}
+{
+  // Every Pokémon needs a list, or one of them silently never uses a move.
+  const moves = JSON.parse(readFileSync(join(ROOT, 'data/moves.json'), 'utf8')).moves;
+  const mon = JSON.parse(readFileSync(join(ROOT, 'data/pokemon.json'), 'utf8')).mon;
+  const thin = mon.filter((m) => (moves[m.id] ?? []).length < 8).map((m) => m.name);
+  ok('all fourteen have a decent spread of moves', thin.length === 0, thin.join(', '));
+  const bad = Object.values(moves).flat().filter((m) => !m.name || !m.type || !m.class);
+  ok('every move carries a name, a type and a class', bad.length === 0, JSON.stringify(bad[0]));
 }
 
 await browser.close();
