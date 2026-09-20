@@ -10,7 +10,7 @@ It does not play the game. It watches, and rules on it.
 
 1. **Who did you find?** — fourteen big picture buttons.
 2. **Stats** get rolled: how it's feeling, how hard it is to catch (1–10), how
-   strong it is (1–10), and its type.
+   strong it is (1–10), how much it's **wiggling** (1–10), and its type.
 3. **Berry?** — if she handed it one of the 3D-printed berries, tap it.
 4. **Which ball?** — Poké, Great, Moon or Master.
 5. She throws the real ball. Then you tap the button, and the on-screen ball
@@ -29,25 +29,79 @@ ball rows stay on screen, so a berry can go in first if she hands one over.
 ### Catching
 
 An easy Pokémon goes into a plain Poké Ball about five times in six; a
-difficulty-10 one about once in twelve. Balls and berries multiply up from
-there, and nothing but a Master Ball can exceed 95%.
+difficulty-10 one about once in twelve. Balls, berries and wiggling multiply up
+from there, every previous miss is added on top, and nothing but a Master Ball
+can exceed 95%.
 
 | Ball | Effect |
 | --- | --- |
 | Poké Ball | ×1 |
 | Great Ball | ×1.5 |
 | Moon Ball | ×2 on a spooky-or-sparkly one, ×1 on everyone else |
-| Master Ball | always catches, always — and it can never run away |
+| Master Ball | always catches, always — and it can never run away, but then it has to recharge |
 
 | Berry | Effect |
 | --- | --- |
 | Razz | ×1.5 |
 | Golden Razz | ×2.5 |
-| Nanab | ×1.2, and it calms it down so it cannot run away |
+| Nanab | scales with wiggling — see below — and it cannot run away |
 | Pinap | ×1.2, and a catch leaves a 💛 on its collection card |
 
 A berry is eaten by the throw it was given for. The ball stays selected, since
 she usually throws the same one again.
+
+### Every miss makes the next throw easier
+
+A hidden count. Each throw that doesn't land adds ten percentage points to the
+next one, up to +75. It's added rather than multiplied on purpose: a multiplier
+leaves a difficulty-10 Pokémon stubborn forever, whereas this converges on a
+catch no matter how bad the roll was.
+
+In practice the worst case in the game — difficulty 10, wiggling 10, a plain
+Poké Ball and no berry — goes in after about 4 throws, and within 7 nineteen
+times out of twenty. Nobody has to spend the Master Ball just to end a losing
+streak.
+
+None of it shows on the **Hard to catch** bar, which keeps reading whatever it
+rolled. The only tell is the line under the picture, which starts saying *it's
+getting tired* after a couple of misses, and *it's getting really tired* after
+four — true, and the sort of true a three-year-old can act on.
+
+The count follows her across a getaway. If it runs to another room and she
+finds it again, the ground she gained comes with her.
+
+### Wiggling, and what the Nanab berry is for
+
+A Pokémon that won't hold still is harder to hit: catch odds are multiplied by
+`1 − 0.04 × wiggling`, so a 10 costs you 40%.
+
+A Nanab berry removes that penalty completely **and** is thanked for it, paying
+`1 + 0.2 × wiggling` instead. On a Pokémon wiggling at 10 that's the difference
+between ×0.6 and ×3.0 — a fivefold swing, and the difference between a 5% throw
+and a 25% one.
+
+So it's a real decision rather than a default:
+
+| Wiggling | Better berry |
+| --- | --- |
+| 1–2 | Razz, or Golden Razz — the Nanab has nothing to fix |
+| 3+ | Nanab, and by a widening margin |
+
+The app says which it is when you tap the berry, so she hears the reason rather
+than just the result.
+
+### The Master Ball has to recharge
+
+It always works, which makes it the answer to everything unless it costs
+something. The cost is three minutes — the tile dims and counts down, and
+tapping it tells you how long is left rather than doing nothing.
+
+**I'm feeling generous — unlock it now** clears the wait immediately. It's
+deliberately small, text-only and dashed, because it sits on a screen a small
+child is jabbing at and it isn't for her.
+
+The countdown is stored, so reloading the page isn't a way around it. The length
+is a setting: off, 1, 3, 5 or 10 minutes.
 
 ### The Moon Ball
 
@@ -74,9 +128,9 @@ re-roll them, because it's the same animal she's still throwing at.
 
 ### Running away is the gentle version
 
-A Pokémon can only run **after** it has already broken out once, never on a
-Nanab berry, never on a Master Ball, and never if you've switched it off in
-settings. The odds run from 4% to 13% with difficulty. It's phrased as *ran to
+A Pokémon can only run **after** it has already broken out once, never on the
+first throw in a new room, never on a Nanab berry, never on a Master Ball, and
+never if you've switched it off in settings. The odds run from 4% to 13% with difficulty. It's phrased as *ran to
 another room*, not *fled*, and the button underneath says **She found it!** —
 so it starts a new game somewhere else in the house instead of ending this one.
 
@@ -161,9 +215,11 @@ npm test
 ```
 
 Starts its own server and drives a real browser through the stat roll, every
-ball, every berry, a break-out, a hide, the sparkly rules, the collection
-stacking and the reset. `Math.random` is stubbed with a queue, so each rule is
-checked on an exact roll rather than hoped at.
+ball, every berry, a break-out, a hide, the miss-by-miss easing, the Nanab's
+scaling, the Master Ball cooldown, the sparkly rules, the collection stacking
+and the reset. `Math.random` is stubbed with a queue, so each rule is checked on
+an exact roll rather than hoped at — the easing test throws the *same* roll four
+times and expects the fourth to land.
 
 ## Sound
 

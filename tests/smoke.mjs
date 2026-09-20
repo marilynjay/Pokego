@@ -63,19 +63,20 @@ const meet = async (page, name) => {
   await page.waitForSelector('#s-meet.on');
 };
 /** Break-outs re-throw from the result button, in a single tap. */
+const pick = async (page, kind, key) => {
+  const el = page.locator(`[data-${kind}="${key}"]`);
+  if (await el.getAttribute('aria-pressed') !== 'true') await el.click();
+};
 const throwAgain = async (page, berry) => {
-  if (berry) await page.click(`[data-berry="${berry}"]`);
+  if (berry) await pick(page, 'berry', berry);
   await page.click('#againBtn');
   await page.waitForSelector('#afterRow', { state: 'hidden' });   // the throw started
   await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
   return page.locator('#headline').innerText();
 };
 const throwWith = async (page, ball, berry) => {
-  if (berry) await page.click(`[data-berry="${berry}"]`);
-  // The ball stays picked after a break-out, and clicking it again would
-  // un-pick it — so only click when it isn't already chosen.
-  const chooser = page.locator(`[data-ball="${ball}"]`);
-  if (await chooser.getAttribute('aria-pressed') !== 'true') await chooser.click();
+  if (berry) await pick(page, 'berry', berry);
+  await pick(page, 'ball', ball);
   await page.click('#throwBtn');
   await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
   return page.locator('#headline').innerText();
@@ -93,13 +94,14 @@ console.log('\nthe pick screen');
 
 console.log('\nan encounter');
 {
-  // temper .5, difficulty from .99 -> 10, power from .1 -> 2
-  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.1, 0.99] });
+  // temper .5, difficulty .99 -> 10, power .1 -> 2, wiggle .4 -> 5
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.1, 0.4] });
   await meet(page, 'Psyduck');
   ok('announces the Pokémon', (await page.locator('#headline').innerText()).includes('Psyduck'));
   ok('rolls a temperament', (await page.locator('#stTemper').innerText()).trim().length > 2);
   ok('rolls difficulty 1-10', await page.locator('#stDiff i.on').count() === 10);
   ok('rolls strength 1-10', await page.locator('#stPower i.on').count() === 2);
+  ok('rolls how much it is wiggling', await page.locator('#stWriggle i.on').count() === 5);
   ok('shows its type', (await page.locator('#stTypes').innerText()).includes('Water'));
   ok('will not throw until a ball is picked', await page.locator('#throwBtn').isDisabled());
   await page.click('[data-ball="poke"]');
@@ -133,8 +135,8 @@ console.log('\nthe master ball always works');
 
 console.log('\nbreaking out, then hiding');
 {
-  // difficulty 10, both catch rolls fail, the second one then rolls a hide.
-  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.99, 0.99, 0.0] });
+  // difficulty 10, wiggle 6, both catch rolls fail, the second then rolls a hide.
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.5, 0.99, 0.99, 0.0] });
   await meet(page, 'Gengar');
   const first = await throwWith(page, 'poke');
   ok('first miss breaks out, never hides', first.includes('broke out'), first);
@@ -148,7 +150,7 @@ console.log('\nbreaking out, then hiding');
 console.log('\nberries');
 {
   // A Nanab calms it, so a roll that would otherwise hide cannot.
-  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.99, 0.99, 0.0] });
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.5, 0.99, 0.99, 0.0] });
   await meet(page, 'Gengar');
   await throwWith(page, 'poke');
   const second = await throwAgain(page, 'nanab');
@@ -156,9 +158,9 @@ console.log('\nberries');
   await ctx.close();
 }
 {
-  // Difficulty 8 -> base 3/12 = .25. A roll of .55 misses on a plain ball and
-  // lands with a Golden Razz (.25 x 2.5 = .625).
-  const { page, ctx } = await open({ rng: [0.5, 0.7, 0.5, 0.55] });
+  // Difficulty 8, barely wiggling -> .24 on a plain ball, .60 with a Golden
+  // Razz. A roll of .55 falls between the two.
+  const { page, ctx } = await open({ rng: [0.5, 0.7, 0.5, 0.0, 0.55] });
   await meet(page, 'Litten');
   ok('the roll under test is difficulty 8', await page.locator('#stDiff i.on').count() === 8);
   const head = await throwWith(page, 'poke', 'golden');
@@ -211,7 +213,7 @@ console.log('\nsparkly ones');
 
 console.log('\nthe collection stacks up');
 {
-  const { page, ctx } = await open({ rng: [0.5, 0.0, 0.5, 0.0] });
+  const { page, ctx } = await open({ rng: [0.5, 0.0, 0.5, 0.0], settings: { masterCooldown: 0 } });
   for (let i = 0; i < 3; i++) {
     await meet(page, 'Charmander');
     await throwWith(page, 'master');
@@ -312,6 +314,125 @@ console.log('\nthe artwork and the thrown ball actually render');
   ok('no two clip paths share an id', ids.count === ids.unique, JSON.stringify(ids));
   await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
   ok('no errors through a full throw', errors.length === 0, errors[0]);
+  await ctx.close();
+}
+
+console.log('\nevery miss makes the next throw easier');
+{
+  // Difficulty 10, barely wiggling -> 8% on a plain ball, climbing 10 points a
+  // miss. A roll of .30 every time therefore misses, misses, misses, then lands.
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.0, 0.3] });
+  await meet(page, 'Marshadow');
+  const before = await page.locator('#stDiff i.on').count();
+  ok('the same roll misses at first', (await throwWith(page, 'poke')).includes('broke out'));
+  ok('and again', (await throwAgain(page)).includes('broke out'));
+  ok('and again', (await throwAgain(page)).includes('broke out'));
+  const fourth = await throwAgain(page);
+  ok('then the very same roll catches it', fourth.includes('Gotcha'), fourth);
+  ok('and the bar never let on', await page.locator('#stDiff i.on').count() === before);
+  await ctx.close();
+}
+{
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.0, 0.99] });
+  await meet(page, 'Marshadow');
+  await throwWith(page, 'poke');
+  ok('it says so in words she can hear', /tired/i.test(await page.locator('#hint').innerText()) === false);
+  await throwAgain(page);
+  ok('after a couple it says it is getting tired', /getting tired/i.test(await page.locator('#hint').innerText()),
+    await page.locator('#hint').innerText());
+  await ctx.close();
+}
+
+console.log('\nthe Nanab berry is worth more on a wriggly one');
+{
+  // Same difficulty, same berry, same roll of .80 — only the wiggling differs.
+  const calm = await open({ rng: [0.5, 0.4, 0.5, 0.0, 0.8] });
+  await meet(calm.page, 'Psyduck');
+  ok('a still Pokémon barely needs one', await calm.page.locator('#stWriggle i.on').count() === 1);
+  const calmHead = await throwWith(calm.page, 'poke', 'nanab');
+  ok('so the Nanab does not save the throw', calmHead.includes('broke out'), calmHead);
+  await calm.page.click('[data-berry="nanab"]');
+  ok('and it says as much', /pretty still/i.test(await calm.page.locator('#hint').innerText()));
+  await calm.ctx.close();
+
+  const wild = await open({ rng: [0.5, 0.4, 0.5, 0.99, 0.8] });
+  await meet(wild.page, 'Psyduck');
+  ok('a wriggly one maxes the bar', await wild.page.locator('#stWriggle i.on').count() === 10);
+  await wild.page.click('[data-berry="nanab"]');
+  ok('and it says the berry will help a lot', /help a lot/i.test(await wild.page.locator('#hint').innerText()));
+  const wildHead = await throwWith(wild.page, 'poke', 'nanab');
+  ok('the identical roll now catches it', wildHead.includes('Gotcha'), wildHead);
+  await wild.ctx.close();
+}
+
+console.log('\nthe Master Ball has to recharge');
+{
+  const { page, ctx } = await open({ rng: [0.5, 0.5, 0.5, 0.5, 0.99] });
+  const master = page.locator('[data-ball="master"]');
+  await meet(page, 'Gengar');
+  ok('it starts ready', !(await master.getAttribute('class')).includes('locked'));
+  ok('and nothing offers to unlock it', await page.locator('#unlockMaster').isHidden());
+  await throwWith(page, 'master');
+  await page.click('#doneBtn');
+  await meet(page, 'Psyduck');
+  ok('using it starts the wait', (await master.getAttribute('class')).includes('locked'));
+  ok('the tile counts down', /^[0-3]:[0-5][0-9]$/.test(await page.locator('#masterCool').innerText()),
+    await page.locator('#masterCool').innerText());
+  await master.click();
+  ok('tapping it refuses, and says how long', /recharging/i.test(await page.locator('#hint').innerText()));
+  ok('and it does not get picked', await master.getAttribute('aria-pressed') === 'false');
+  ok('the throw button stays locked out', await page.locator('#throwBtn').isDisabled());
+
+  // It has to survive a reload, or reloading is the way around it.
+  await page.reload();
+  await page.waitForSelector('#pickGrid .pick');
+  await meet(page, 'Psyduck');
+  ok('a reload does not clear it', (await page.locator('[data-ball="master"]').getAttribute('class')).includes('locked'));
+
+  await page.click('#unlockMaster');
+  ok('a generous grown-up can unlock it', !(await page.locator('[data-ball="master"]').getAttribute('class')).includes('locked'));
+  ok('and the unlock button gets out of the way', await page.locator('#unlockMaster').isHidden());
+  await page.click('[data-ball="master"]');
+  ok('now it can be picked again', await page.locator('[data-ball="master"]').getAttribute('aria-pressed') === 'true');
+  await ctx.close();
+}
+{
+  const { page, ctx } = await open({ rng: [0.5, 0.5, 0.5, 0.5, 0.99], settings: { masterCooldown: 0 } });
+  await meet(page, 'Gengar');
+  await throwWith(page, 'master');
+  await page.click('#doneBtn');
+  await meet(page, 'Psyduck');
+  ok('the cooldown can be switched off entirely',
+    !(await page.locator('[data-ball="master"]').getAttribute('class')).includes('locked'));
+  await ctx.close();
+}
+
+console.log('\nthe Pokémon is still there after the last one was caught');
+{
+  // The catch animation ends at opacity 0 with fill:'forwards', which outranks
+  // inline styles — so the NEXT encounter used to render an empty stage.
+  const { page, ctx } = await open({ reducedMotion: 'no-preference', rng: [0.5, 0.0, 0.5, 0.0], settings: { masterCooldown: 0 } });
+  const shown = () => page.evaluate(() => {
+    const i = document.getElementById('monImg'), r = i.getBoundingClientRect();
+    return { opacity: Number(getComputedStyle(i).opacity), w: Math.round(r.width), h: Math.round(r.height) };
+  });
+  await meet(page, 'Pikachu');
+  const first = await shown();
+  ok('visible on the first encounter', first.opacity === 1 && first.h > 150, JSON.stringify(first));
+  const head = await throwWith(page, 'poke');
+  ok('and it gets caught', head.includes('Gotcha'), head);
+
+  await page.click('#doneBtn');
+  await meet(page, 'Charmander');
+  const next = await shown();
+  ok('and the next one is visible too', next.opacity === 1 && next.h > 150, JSON.stringify(next));
+
+  // Same again through a getaway and a break-out, which take other code paths.
+  await throwWith(page, 'master');
+  await page.click('#doneBtn');
+  await meet(page, 'Gengar');
+  const third = await shown();
+  ok('still visible after a Master Ball catch', third.opacity === 1 && third.h > 150, JSON.stringify(third));
   await ctx.close();
 }
 
