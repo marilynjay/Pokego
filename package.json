@@ -1,0 +1,16 @@
+{
+  "name": "pokego",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A referee for catching plushie Pokémon with plushie Poké Balls.",
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8123",
+    "build-icons": "node tools/make-icons.mjs",
+    "add-cry": "node tools/add-cry.mjs",
+    "test": "node tests/smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

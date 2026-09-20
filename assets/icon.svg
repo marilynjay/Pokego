@@ -1,0 +1,15 @@
+<!-- Drawn by hand for this app: a catching ball with a star on it. Geometric
+     shapes only, so nothing copyrighted is committed to this repository. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="108" fill="#2b6cb0"/>
+  <g transform="translate(256 262)">
+    <circle r="168" fill="#f4f4f4"/>
+    <path d="M-168 0 A168 168 0 0 1 168 0 Z" fill="#e3350d"/>
+    <path d="M-30 -104 L-9 -50 L48 -46 L4 -9 L18 46 L-30 16 L-78 46 L-64 -9 L-108 -46 L-51 -50 Z"
+          fill="#ffd94a" stroke="#c98b00" stroke-width="7" stroke-linejoin="round"/>
+    <rect x="-168" y="-24" width="336" height="48" fill="#17233a"/>
+    <circle r="168" fill="none" stroke="#17233a" stroke-width="22"/>
+    <circle r="52" fill="#f4f4f4" stroke="#17233a" stroke-width="22"/>
+    <circle r="22" fill="#d8d8d8"/>
+  </g>
+</svg>

@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pokémon Catcher</title>
+<meta name="description" content="A referee for catching plushie Pokémon with plushie Poké Balls.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2b6cb0">
+<style>
+:root {
+  --bg: #eef4fb;
+  --panel: #ffffff;
+  --ink: #17233a;
+  --dim: #5b6b86;
+  --line: #d3ddea;
+  --accent: #2b6cb0;
+  --good: #1f9254;
+  --warn: #b2560d;
+  --bad: #b3352f;
+  --shiny: #b8860b;
+  --shadow: 0 2px 0 rgba(23,35,58,.14), 0 8px 24px rgba(23,35,58,.10);
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131a26;
+    --panel: #1d2735;
+    --ink: #eaf1fa;
+    --dim: #9fb1c8;
+    --line: #33415a;
+    --accent: #6aa9e8;
+    --good: #57c98a;
+    --warn: #e79a4e;
+    --bad: #f0857e;
+    --shiny: #f5cf5a;
+    --shadow: 0 2px 0 rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* .btn and .row set display:flex, which outranks the [hidden] attribute's own
+   display:none — without this, hiding a button by attribute does nothing. */
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior: none;
+}
+#app { max-width: 720px; margin: 0 auto; padding: 12px 16px 28px; }
+h1, h2 { margin: 0; line-height: 1.15; }
+h1 { font-size: 1.45rem; }
+.screen { display: none; }
+.screen.on { display: block; }
+
+/* Buttons are sized for a three-year-old's finger, not a cursor. */
+button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 60px; width: 100%; padding: 12px 18px;
+  border-radius: var(--radius); border: 2px solid var(--line);
+  background: var(--panel); box-shadow: var(--shadow);
+  font-weight: 650; text-align: center;
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; min-height: 76px; font-size: 1.3rem; }
+.btn.primary[disabled] { opacity: .4; }
+.btn.quiet { min-height: 48px; font-weight: 550; font-size: .95rem; box-shadow: none; }
+.row { display: flex; gap: 10px; margin-top: 12px; }
+.row > * { flex: 1; }
+
+/* Top bar */
+.top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.top h1 { flex: 1; }
+.iconbtn {
+  width: 52px; height: 52px; flex: none; display: grid; place-items: center;
+  border-radius: 14px; border: 2px solid var(--line); background: var(--panel); font-size: 1.35rem;
+}
+
+/* --- Pick screen ------------------------------------------------------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
+.pick {
+  border-radius: var(--radius); border: 2px solid var(--line); background: var(--panel);
+  box-shadow: var(--shadow); padding: 8px 6px 10px; display: grid; justify-items: center; gap: 2px;
+}
+.pick img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.pick b { font-size: .88rem; font-weight: 700; }
+.pick:active { transform: translateY(2px); }
+
+/* --- Encounter --------------------------------------------------------- */
+.stage {
+  position: relative; height: 300px; margin: 6px 0 4px;
+  display: grid; place-items: center; overflow: hidden;
+}
+#monImg { max-width: 76%; max-height: 270px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
+#monImg.shiny { animation: shimmer 2.4s ease-in-out infinite; }
+@keyframes shimmer {
+  0%, 100% { filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
+  50% { filter: drop-shadow(0 0 22px var(--shiny)) drop-shadow(0 8px 14px rgba(0,0,0,.22)) saturate(1.3); }
+}
+.sparkles { position: absolute; inset: 0; pointer-events: none; }
+.sparkles span { position: absolute; font-size: 26px; animation: twinkle 1.8s ease-in-out infinite; }
+@keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.5); } 50% { opacity: 1; transform: scale(1.15); } }
+
+.headline { text-align: center; font-size: 1.35rem; font-weight: 800; min-height: 1.6em; }
+.headline .shinyword { color: var(--shiny); }
+.says { text-align: center; color: var(--dim); font-size: .95rem; margin-top: -2px; }
+
+.card { background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-top: 14px; }
+.card h2 { font-size: 1rem; color: var(--dim); font-weight: 700; letter-spacing: .03em; text-transform: uppercase; margin-bottom: 10px; }
+.stat { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.stat .label { width: 108px; flex: none; color: var(--dim); font-size: .92rem; }
+.stat .val { font-weight: 700; }
+.pips { display: flex; gap: 4px; flex: 1; }
+.pips i { flex: 1; height: 14px; border-radius: 4px; background: var(--line); }
+.pips i.on { background: var(--accent); }
+.pips.hard i.on { background: var(--warn); }
+.types { display: flex; gap: 6px; }
+.type { font-size: .8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--line); }
+
+/* Ball / berry choosers */
+.choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.choice {
+  border-radius: 16px; border: 2px solid var(--line); background: var(--panel);
+  padding: 10px 4px 8px; display: grid; justify-items: center; gap: 4px; min-height: 96px;
+}
+.choice svg { width: 46px; height: 46px; }
+.choice small { font-size: .74rem; font-weight: 700; line-height: 1.1; text-align: center; }
+.choice[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.hint { color: var(--dim); font-size: .85rem; text-align: center; margin-top: 8px; min-height: 1.3em; }
+
+/* Thrown ball + wobble */
+#ball { position: absolute; width: 74px; height: 74px; display: none; z-index: 3; }
+#ball.show { display: block; }
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-17deg); }
+  50% { transform: rotate(0deg); }
+  80% { transform: rotate(17deg); }
+}
+@keyframes burst { from { transform: scale(1); opacity: 1; } to { transform: scale(2.1); opacity: 0; } }
+@keyframes shrinkIn { to { transform: scale(.05) translateY(12px); opacity: 0; } }
+@keyframes popOut { from { transform: scale(.05); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; }
+
+/* --- Collection -------------------------------------------------------- */
+.stacks { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
+.stack { position: relative; border-radius: var(--radius); border: 2px solid var(--line); background: var(--panel); box-shadow: var(--shadow); padding: 8px 6px 10px; display: grid; justify-items: center; gap: 2px; }
+.stack.is-shiny { border-color: var(--shiny); background: color-mix(in srgb, var(--shiny) 12%, var(--panel)); }
+.stack img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.stack b { font-size: .85rem; }
+.count {
+  position: absolute; top: -8px; right: -8px; min-width: 32px; height: 32px; padding: 0 7px;
+  border-radius: 999px; background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 800; font-size: .95rem; border: 2px solid var(--bg);
+}
+.stack.is-shiny .count { background: var(--shiny); color: #241a00; }
+.hearts { font-size: .8rem; color: var(--dim); }
+.empty { color: var(--dim); text-align: center; padding: 40px 20px; }
+.sectionhead { margin: 22px 0 10px; font-size: 1rem; color: var(--dim); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+
+/* --- Settings ---------------------------------------------------------- */
+.setting { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.setting:last-of-type { border-bottom: none; }
+.setting .txt { flex: 1; }
+.setting .txt small { display: block; color: var(--dim); font-size: .85rem; font-weight: 400; }
+.setting label { font-weight: 650; }
+select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel); color: inherit; min-height: 48px; }
+.switch { width: 64px; height: 38px; flex: none; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; }
+.switch[aria-checked="true"] { background: var(--good); }
+.switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 30px; height: 30px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.switch[aria-checked="true"]::after { transform: translateX(26px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Pick ---------------------------------------------------------------->
+  <section id="s-pick" class="screen on">
+    <div class="top">
+      <h1>Who did you find?</h1>
+      <button class="iconbtn" id="toCollection" title="Collection" aria-label="Collection">🎒</button>
+      <button class="iconbtn" id="toSettings" title="Settings" aria-label="Settings">⚙️</button>
+    </div>
+    <div class="grid" id="pickGrid"></div>
+  </section>
+
+  <!-- Encounter ----------------------------------------------------------->
+  <section id="s-meet" class="screen">
+    <div class="stage">
+      <div class="sparkles" id="sparkles" hidden></div>
+      <img id="monImg" alt="">
+      <div id="ball"></div>
+      <div class="flash" id="flash"></div>
+    </div>
+    <div class="headline" id="headline"></div>
+    <div class="says" id="says"></div>
+
+    <div class="card" id="statCard">
+      <h2>Stats</h2>
+      <div class="stat"><span class="label">Feeling</span><span class="val" id="stTemper"></span></div>
+      <div class="stat"><span class="label">Type</span><span class="types" id="stTypes"></span></div>
+      <div class="stat"><span class="label">Hard to catch</span><span class="pips hard" id="stDiff"></span></div>
+      <div class="stat"><span class="label">Strong</span><span class="pips" id="stPower"></span></div>
+    </div>
+
+    <div class="card" id="berryCard">
+      <h2>Did she give it a berry?</h2>
+      <div class="choices" id="berryRow"></div>
+    </div>
+
+    <div class="card" id="ballCard">
+      <h2>Which ball is she throwing?</h2>
+      <div class="choices" id="ballRow"></div>
+    </div>
+
+    <div class="row"><button class="btn primary" id="throwBtn" disabled>She threw it!</button></div>
+    <div class="hint" id="hint"></div>
+    <div class="row" id="afterRow" hidden>
+      <button class="btn" id="againBtn">Throw again</button>
+      <button class="btn" id="doneBtn">Someone else</button>
+    </div>
+    <div class="row"><button class="btn quiet" id="backFromMeet">← Back</button></div>
+  </section>
+
+  <!-- Collection ---------------------------------------------------------->
+  <section id="s-collection" class="screen">
+    <div class="top"><h1>Her Pokémon</h1></div>
+    <div id="collectionBody"></div>
+    <div class="row"><button class="btn quiet" id="backFromCollection">← Back</button></div>
+  </section>
+
+  <!-- Settings ------------------------------------------------------------>
+  <section id="s-settings" class="screen">
+    <div class="top"><h1>Grown-up settings</h1></div>
+    <div class="card">
+      <div class="setting">
+        <div class="txt"><label for="setShiny">Shiny chance</label><small>A sparkly one stays sparkly until she catches it.</small></div>
+        <select id="setShiny">
+          <option value="10">1 in 10</option>
+          <option value="25">1 in 25</option>
+          <option value="50">1 in 50</option>
+          <option value="100">1 in 100</option>
+          <option value="1">Every time</option>
+          <option value="0">Never</option>
+        </select>
+      </div>
+      <div class="setting">
+        <div class="txt"><label id="lbSound">Sounds</label><small>Cries, and a different noise for caught, breaks out and hides.</small></div>
+        <button class="switch" id="setSound" role="switch" aria-labelledby="lbSound"></button>
+      </div>
+      <div class="setting">
+        <div class="txt"><label id="lbFlee">Let them hide</label><small>Off means they only ever break out — nothing ever gets away.</small></div>
+        <button class="switch" id="setFlee" role="switch" aria-labelledby="lbFlee"></button>
+      </div>
+    </div>
+    <div class="row"><button class="btn quiet" id="resetBtn">Reset everything she's caught</button></div>
+    <div class="row"><button class="btn quiet" id="backFromSettings">← Back</button></div>
+  </section>
+
+</div>
+
+<script type="module">
+// ---------------------------------------------------------------------------
+// A referee for a game played on the carpet. She throws a plushie ball at a
+// plushie Pokémon; a grown-up taps "She threw it!" once it has actually left
+// her hand, and this decides what happened.
+// ---------------------------------------------------------------------------
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+
+// --- Storage ---------------------------------------------------------------
+// Everything lives in this browser only. Reads are wrapped because private
+// windows and cleared site data make localStorage throw rather than return null.
+const store = {
+  get(key, fallback) {
+    try { const raw = localStorage.getItem('pokego.' + key); return raw === null ? fallback : JSON.parse(raw); }
+    catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem('pokego.' + key, JSON.stringify(value)); } catch { /* nothing to do */ }
+  },
+};
+
+const settings = Object.assign({ shinyOdds: 50, sound: true, fleeing: true }, store.get('settings', {}));
+// caught: { "25": { n: 12, hearts: 3 } }   shinies are counted separately so a
+// shelf of twelve Charmanders never buries the one sparkly one.
+let caught = store.get('caught', {});
+let shinyCaught = store.get('shinyCaught', {});
+// A shiny that shows up stays shiny until she actually catches it — breaking
+// out or hiding in another room doesn't take it away.
+let shinyWaiting = store.get('shinyWaiting', []);
+let sinceShiny = store.get('sinceShiny', 0);
+
+const saveAll = () => {
+  store.set('settings', settings); store.set('caught', caught);
+  store.set('shinyCaught', shinyCaught); store.set('shinyWaiting', shinyWaiting);
+  store.set('sinceShiny', sinceShiny);
+};
+
+// --- Data ------------------------------------------------------------------
+const res = await fetch('data/pokemon.json');
+const DATA = await res.json();
+const MON = DATA.mon;
+const art = (mon, shiny) => `${DATA.spriteBase}/${shiny ? 'shiny/' : ''}${mon.id}.png`;
+
+// The Moon Ball's real rule — a boost only for Pokémon that evolve with a Moon
+// Stone — catches none of her fourteen, so it would be a plain Poké Ball with a
+// nicer paint job. House rule instead: it's the ball for the spooky and sparkly
+// ones, which is something a three-year-old can actually learn to predict.
+const MOONY = new Set(['Ghost', 'Fairy', 'Psychic', 'Dark']);
+const isMoony = (mon) => mon.types.some((t) => MOONY.has(t));
+
+const TEMPERS = [
+  'sleepy 😴', 'grumpy 😤', 'playful 🤸', 'shy 🙈', 'curious 🧐', 'silly 🤪',
+  'brave 🦁', 'cuddly 🤗', 'wiggly 🪱', 'hungry 🍪', 'bouncy 🏀', 'dreamy ☁️',
+  'friendly 💛', 'cheeky 😜', 'calm 🧘', 'excited 🎉', 'nosy 👀', 'proud 🌟',
+];
+
+const BALLS = [
+  { key: 'poke',   name: 'Poké Ball',   mult: 1.0 },
+  { key: 'great',  name: 'Great Ball',  mult: 1.5 },
+  { key: 'moon',   name: 'Moon Ball',   mult: 2.0 },  // only on a moony Pokémon
+  { key: 'master', name: 'Master Ball', mult: Infinity },
+];
+const BERRIES = [
+  { key: 'razz',   name: 'Razz',        mult: 1.5 },
+  { key: 'nanab',  name: 'Nanab',       mult: 1.2, calms: true },
+  { key: 'golden', name: 'Golden Razz', mult: 2.5 },
+  { key: 'pinap',  name: 'Pinap',       mult: 1.2, heart: true },
+];
+
+// --- Hand-drawn art --------------------------------------------------------
+// Drawn here rather than copied, so nothing copyrighted is committed.
+function ballArt(kind) {
+  const tops = { poke: '#e3350d', great: '#2f6fd0', moon: '#2a2a55', master: '#6b3fa0' };
+  const deco = {
+    poke: '',
+    great: `<path d="M8 46 Q16 10 44 6" stroke="#e3350d" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M92 46 Q84 10 56 6" stroke="#e3350d" stroke-width="7" fill="none" stroke-linecap="round"/>`,
+    moon: `<circle cx="48" cy="25" r="14" fill="#ffd94a"/><circle cx="56" cy="20" r="13" fill="#2a2a55"/>`,
+    master: `<circle cx="27" cy="21" r="7" fill="#e86ab5"/><circle cx="73" cy="21" r="7" fill="#e86ab5"/>
+             <path d="M36 40 L36 18 L50 32 L64 18 L64 40" stroke="#e86ab5" stroke-width="7" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`,
+  };
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs><clipPath id="clip-${kind}"><circle cx="50" cy="50" r="46"/></clipPath></defs>
+    <g clip-path="url(#clip-${kind})">
+      <rect x="0" y="0" width="100" height="52" fill="${tops[kind]}"/>
+      <rect x="0" y="48" width="100" height="52" fill="#f4f4f4"/>
+      ${deco[kind]}
+      <rect x="0" y="43" width="100" height="13" fill="#1b1b1b"/>
+    </g>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#1b1b1b" stroke-width="6"/>
+    <circle cx="50" cy="50" r="14" fill="#fff" stroke="#1b1b1b" stroke-width="6"/>
+    <circle cx="50" cy="50" r="6" fill="#d8d8d8"/>
+  </svg>`;
+}
+
+function berryArt(kind) {
+  const stem = `<path d="M50 30 L50 18" stroke="#4a7a2c" stroke-width="6" stroke-linecap="round"/>
+                <path d="M50 20 C62 8 78 12 78 12 C78 12 74 28 58 26Z" fill="#5c9a37"/>`;
+  const blob = (a, b) => `<path d="M50 92 C18 92 10 62 22 45 C31 32 46 34 50 43 C54 34 69 32 78 45 C90 62 82 92 50 92Z" fill="${a}"/>
+    <path d="M38 52 C31 58 29 70 33 79" stroke="${b}" stroke-width="6" fill="none" stroke-linecap="round" opacity=".55"/>`;
+  const art = {
+    razz: blob('#e0485f', '#ffd0d6') + stem,
+    golden: blob('#e2a521', '#ffeaa8') + stem,
+    nanab: `<path d="M22 24 C22 68 44 90 80 84 C83 74 78 68 70 69 C46 73 34 56 34 24Z" fill="#f2c84b"/>
+            <path d="M30 30 C32 62 48 78 72 76" stroke="#c99a1e" stroke-width="5" fill="none" opacity=".6"/>
+            <path d="M22 26 C18 16 26 10 32 14" stroke="#4a7a2c" stroke-width="7" fill="none" stroke-linecap="round"/>`,
+    pinap: `<ellipse cx="50" cy="63" rx="30" ry="30" fill="#6fbf4a"/>
+            <path d="M32 50 L68 76 M68 50 L32 76" stroke="#4d9130" stroke-width="5" opacity=".7"/>
+            <path d="M50 33 L36 8 M50 33 L50 4 M50 33 L64 8" stroke="#e86ab5" stroke-width="8" stroke-linecap="round"/>`,
+  };
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${art[kind]}</svg>`;
+}
+
+// --- Sound -----------------------------------------------------------------
+// Synthesised rather than sampled: no licensing, no download, works offline.
+let ac = null;
+function audio() {
+  if (!settings.sound) return null;
+  try {
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  } catch { return null; }
+}
+function tone(freq, at, dur, { type = 'sine', vol = 0.18, to = null } = {}) {
+  const c = audio(); if (!c) return;
+  const t = c.currentTime + at;
+  const osc = c.createOscillator(), gain = c.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  if (to) osc.frequency.exponentialRampToValueAtTime(to, t + dur);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain).connect(c.destination);
+  osc.start(t); osc.stop(t + dur + 0.02);
+}
+const sfx = {
+  throw:  () => tone(760, 0, 0.26, { type: 'triangle', to: 260, vol: 0.14 }),
+  tick:   () => tone(880, 0, 0.05, { type: 'square', vol: 0.10 }),
+  caught: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, { type: 'triangle', vol: 0.2 }));
+                  tone(2093, 0.46, 0.5, { type: 'sine', vol: 0.13 }); },
+  breakout: () => { tone(420, 0, 0.22, { type: 'sawtooth', to: 160, vol: 0.16 });
+                    tone(180, 0.2, 0.18, { type: 'square', vol: 0.12 }); },
+  flee:   () => { tone(880, 0, 0.42, { type: 'sine', to: 180, vol: 0.15 });
+                  tone(300, 0.4, 0.12, { type: 'triangle', vol: 0.1 }); },
+  shiny:  () => [1568, 2093, 2637].forEach((f, i) => tone(f, i * 0.09, 0.45, { type: 'sine', vol: 0.11 })),
+};
+function cry(id) {
+  if (!settings.sound) return;
+  try { const a = new Audio(`assets/cries/${id}.mp3`); a.volume = 0.55; a.play().catch(() => {}); } catch { /* fine */ }
+}
+
+// --- Screens ---------------------------------------------------------------
+function show(name) {
+  for (const s of document.querySelectorAll('.screen')) s.classList.toggle('on', s.id === 's-' + name);
+  window.scrollTo(0, 0);
+}
+
+// --- Pick ------------------------------------------------------------------
+$('pickGrid').innerHTML = MON.map((m) => `
+  <button class="pick" data-id="${m.id}">
+    <img src="${art(m, false)}" alt="" loading="lazy">
+    <b>${m.name}</b>
+  </button>`).join('');
+$('pickGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.pick'); if (!btn) return;
+  meet(MON.find((m) => m.id === Number(btn.dataset.id)));
+});
+
+// --- Choosers --------------------------------------------------------------
+$('ballRow').innerHTML = BALLS.map((b) => `
+  <button class="choice" data-ball="${b.key}" aria-pressed="false">
+    ${ballArt(b.key)}<small>${b.name.replace(' ', '<br>')}</small>
+  </button>`).join('');
+$('berryRow').innerHTML = BERRIES.map((b) => `
+  <button class="choice" data-berry="${b.key}" aria-pressed="false">
+    ${berryArt(b.key)}<small>${b.name.replace(' ', '<br>')}</small>
+  </button>`).join('');
+
+let picked = { ball: null, berry: null };
+
+function selectChoice(row, attr, key) {
+  for (const el of $(row).children) el.setAttribute('aria-pressed', String(el.dataset[attr] === key));
+}
+$('ballRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.choice'); if (!btn || busy) return;
+  picked.ball = picked.ball === btn.dataset.ball ? null : btn.dataset.ball;
+  selectChoice('ballRow', 'ball', picked.ball);
+  $('throwBtn').disabled = !picked.ball;
+  // Say out loud why the Moon Ball is or isn't the right pick here.
+  if (picked.ball === 'moon') {
+    $('hint').textContent = isMoony(current.mon)
+      ? `The Moon Ball loves spooky and sparkly ones — good choice for ${current.mon.name}!`
+      : `The Moon Ball is for spooky and sparkly ones. ${current.mon.name} isn't one, so it throws like a normal ball.`;
+  } else $('hint').textContent = '';
+});
+$('berryRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.choice'); if (!btn || busy) return;
+  picked.berry = picked.berry === btn.dataset.berry ? null : btn.dataset.berry;
+  selectChoice('berryRow', 'berry', picked.berry);
+});
+
+// --- An encounter ----------------------------------------------------------
+let current = null;
+let busy = false;
+
+function pips(el, n, max = 10) {
+  el.innerHTML = Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
+}
+
+function rollShiny(mon) {
+  if (shinyWaiting.includes(mon.id)) return true;         // still out there, still sparkly
+  const odds = Number(settings.shinyOdds);
+  if (odds === 0) return false;
+  if (odds === 1) return true;
+  sinceShiny++;
+  // A pity counter, so "1 in 50" can't quietly mean "never" on a bad streak.
+  const hit = sinceShiny >= odds || Math.random() < 1 / odds;
+  if (hit) { sinceShiny = 0; shinyWaiting.push(mon.id); }
+  saveAll();
+  return hit;
+}
+
+function meet(mon) {
+  const shiny = rollShiny(mon);
+  // Stats are rolled fresh every encounter, so there's such a thing as an easy,
+  // friendly Marshadow and a fierce, grumpy Psyduck.
+  current = {
+    mon, shiny,
+    temper: TEMPERS[Math.floor(Math.random() * TEMPERS.length)],
+    difficulty: 1 + Math.floor(Math.random() * 10),
+    power: 1 + Math.floor(Math.random() * 10),
+    throws: 0,
+  };
+  picked = { ball: null, berry: null };
+  selectChoice('ballRow', 'ball', null);
+  selectChoice('berryRow', 'berry', null);
+
+  const img = $('monImg');
+  img.src = art(mon, shiny);
+  img.alt = `${shiny ? 'Shiny ' : ''}${mon.name}`;
+  img.classList.toggle('shiny', shiny);
+  img.style.animation = '';
+  img.style.opacity = '1';
+  img.style.transform = '';
+  $('sparkles').hidden = !shiny;
+  if (shiny) {
+    $('sparkles').innerHTML = [[12, 18], [78, 12], [86, 62], [8, 70], [48, 6]]
+      .map(([x, y], i) => `<span style="left:${x}%;top:${y}%;animation-delay:${i * 0.3}s">✨</span>`).join('');
+  }
+
+  $('headline').innerHTML = shiny
+    ? `A <span class="shinyword">sparkly ✨ ${mon.name}</span>!`
+    : `A wild ${mon.name}!`;
+  $('says').textContent = `say it: ${mon.say}`;
+  $('stTemper').textContent = current.temper;
+  $('stTypes').innerHTML = mon.types.map((t) => `<span class="type">${t}</span>`).join('');
+  pips($('stDiff'), current.difficulty);
+  pips($('stPower'), current.power);
+
+  $('throwBtn').hidden = false;
+  $('throwBtn').disabled = true;
+  $('throwBtn').textContent = 'She threw it!';
+  $('afterRow').hidden = true;
+  $('berryCard').hidden = false;
+  $('ballCard').hidden = false;
+  $('hint').textContent = '';
+  $('ball').className = '';
+  show('meet');
+  cry(mon.id);
+  if (shiny) setTimeout(sfx.shiny, 500);
+}
+
+// --- What happened ---------------------------------------------------------
+function resolve() {
+  const ball = BALLS.find((b) => b.key === picked.ball);
+  const berry = BERRIES.find((b) => b.key === picked.berry) || null;
+
+  if (ball.key === 'master') return { outcome: 'caught', wobbles: 3, heart: !!berry?.heart };
+
+  // An easy Pokémon is caught by a plain ball about five times in six; a hard
+  // one about one time in twelve. Balls and berries multiply up from there.
+  const base = (11 - current.difficulty) / 12;
+  const ballMult = ball.key === 'moon' && !isMoony(current.mon) ? 1 : ball.mult;
+  const chance = Math.min(0.95, base * ballMult * (berry ? berry.mult : 1));
+  const roll = Math.random();
+  if (roll < chance) return { outcome: 'caught', wobbles: 3, heart: !!berry?.heart };
+
+  // Only ever hide after it has already wriggled out once, never with a Nanab
+  // berry, and never if a grown-up switched hiding off.
+  const canHide = settings.fleeing && current.throws > 1 && !berry?.calms;
+  const hideChance = 0.03 + current.difficulty * 0.01;
+  if (canHide && Math.random() < hideChance) return { outcome: 'hid', wobbles: 1 };
+
+  const margin = roll - chance;
+  return { outcome: 'out', wobbles: margin < 0.08 ? 3 : margin < 0.25 ? 2 : 1 };
+}
+
+async function throwBall() {
+  if (busy || !picked.ball) return;
+  busy = true;
+  current.throws++;
+  $('throwBtn').disabled = true;
+  $('berryCard').hidden = true;
+  $('ballCard').hidden = true;
+  $('hint').textContent = '';
+
+  const result = resolve();
+  const img = $('monImg'), ball = $('ball'), flash = $('flash');
+  ball.innerHTML = `<div id="ballInner">${ballArt(picked.ball)}</div>`;
+  const inner = $('ballInner');
+  ball.className = 'show';
+  ball.style.left = '50%'; ball.style.top = '50%';
+  ball.style.marginLeft = '-37px'; ball.style.marginTop = '-37px';
+
+  const quick = calm.matches;
+  const anim = (el, frames, ms, easing = 'ease') =>
+    quick ? Promise.resolve() : el.animate(frames, { duration: ms, easing, fill: 'forwards' }).finished;
+
+  sfx.throw();
+  // Arc in, swallow the Pokémon, drop to the carpet.
+  await anim(ball, [{ transform: 'translate(0,210px) scale(.45)' }, { transform: 'translate(0,-16px) scale(1)' }], 520, 'cubic-bezier(.2,.75,.4,1)');
+  flash.animate([{ opacity: 0 }, { opacity: .75 }, { opacity: 0 }], { duration: 260 });
+  await anim(img, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.05) translateY(10px)', opacity: 0 }], 260, 'ease-in');
+  img.style.opacity = '0';
+  $('sparkles').hidden = true;
+  await anim(ball, [{ transform: 'translate(0,-16px) scale(1)' }, { transform: 'translate(0,78px) scale(1)' }], 360, 'cubic-bezier(.5,0,.85,1)');
+  if (quick) await sleep(250);
+
+  for (let i = 0; i < result.wobbles; i++) {
+    sfx.tick();
+    await anim(inner, [{ transform: 'rotate(0)' }, { transform: 'rotate(-17deg)' }, { transform: 'rotate(0)' }, { transform: 'rotate(17deg)' }, { transform: 'rotate(0)' }], 620);
+    if (quick) await sleep(160);
+    await sleep(quick ? 0 : 140);
+  }
+
+  if (result.outcome === 'caught') {
+    sfx.caught();
+    await anim(ball, [{ transform: 'translate(0,78px) scale(1)' }, { transform: 'translate(0,60px) scale(1.18)' }, { transform: 'translate(0,78px) scale(1)' }], 380);
+    record(result.heart);
+    finish('caught');
+  } else {
+    // It bursts back out of the ball either way; the difference is whether it
+    // stays put or has run off to another room.
+    sfx[result.outcome === 'hid' ? 'flee' : 'breakout']();
+    flash.animate([{ opacity: 0 }, { opacity: .6 }, { opacity: 0 }], { duration: 300 });
+    await anim(ball, [{ opacity: 1, transform: 'translate(0,78px) scale(1)' }, { opacity: 0, transform: 'translate(0,78px) scale(2)' }], 300);
+    ball.className = '';
+    if (result.outcome === 'out') {
+      img.style.opacity = '1';
+      $('sparkles').hidden = !current.shiny;
+      await anim(img, [{ transform: 'scale(.05)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], 320, 'cubic-bezier(.3,1.5,.6,1)');
+      img.style.transform = '';
+    }
+    finish(result.outcome);
+  }
+  busy = false;
+}
+
+function record(heart) {
+  const id = String(current.mon.id);
+  if (current.shiny) {
+    shinyCaught[id] = (shinyCaught[id] || 0) + 1;
+    shinyWaiting = shinyWaiting.filter((x) => x !== current.mon.id);
+  } else {
+    const e = caught[id] || { n: 0, hearts: 0 };
+    e.n++; if (heart) e.hearts++;
+    caught[id] = e;
+  }
+  saveAll();
+}
+
+function finish(outcome) {
+  const name = current.mon.name;
+  $('throwBtn').hidden = true;
+  $('afterRow').hidden = false;
+  const again = $('againBtn'), done = $('doneBtn');
+  // The berry is gone once it's been eaten; the ball stays picked, since she
+  // usually throws the same one again.
+  picked.berry = null;
+  selectChoice('berryRow', 'berry', null);
+
+  if (outcome === 'caught') {
+    $('headline').innerHTML = current.shiny
+      ? `Gotcha! <span class="shinyword">Sparkly ${name}</span> was caught! ✨`
+      : `Gotcha! ${name} was caught! 🎉`;
+    $('hint').textContent = 'Go and give it a cuddle.';
+    again.hidden = true;
+    done.textContent = 'Catch another!';
+  } else if (outcome === 'out') {
+    $('headline').textContent = `Oh no — ${name} broke out!`;
+    $('hint').textContent = 'It is still right there. Try again!';
+    again.hidden = false;
+    again.dataset.mode = 'again';
+    again.textContent = 'Throw again';
+    done.textContent = 'Someone else';
+    $('berryCard').hidden = false;
+    $('ballCard').hidden = false;
+  } else {
+    $('headline').textContent = `${name} ran to another room!`;
+    $('hint').textContent = current.shiny
+      ? 'The sparkly one is still sparkly. Go and find it!'
+      : 'Go and find where it is hiding.';
+    again.hidden = false;
+    again.dataset.mode = 'refind';
+    again.textContent = 'She found it!';
+    done.textContent = 'Someone else';
+  }
+}
+
+$('throwBtn').addEventListener('click', throwBall);
+$('doneBtn').addEventListener('click', () => show('pick'));
+$('againBtn').addEventListener('click', () => {
+  if ($('againBtn').dataset.mode === 'refind') return meet(current.mon);  // fresh encounter, same Pokémon
+  // Same encounter: the stats and the sparkle stay exactly as they were.
+  $('throwBtn').hidden = false;
+  $('throwBtn').disabled = !picked.ball;
+  $('afterRow').hidden = true;
+  $('headline').innerHTML = current.shiny
+    ? `A <span class="shinyword">sparkly ✨ ${current.mon.name}</span>!` : `A wild ${current.mon.name}!`;
+  $('hint').textContent = '';
+});
+$('backFromMeet').addEventListener('click', () => { if (!busy) show('pick'); });
+
+// --- Collection ------------------------------------------------------------
+// Stacked by species: twelve Charmanders are one card reading "12", so the
+// shelf never turns into a wall of identical pictures. Sparkly ones get their
+// own stack, because that is the whole point of a sparkly one.
+function renderCollection() {
+  const byId = (id) => MON.find((m) => m.id === Number(id));
+  const stack = (id, n, shiny, hearts) => {
+    const m = byId(id); if (!m) return '';
+    return `<div class="stack ${shiny ? 'is-shiny' : ''}">
+      <span class="count">${shiny ? '✨' : ''}${n}</span>
+      <img src="${art(m, shiny)}" alt="${shiny ? 'Shiny ' : ''}${m.name}" loading="lazy">
+      <b>${m.name}</b>
+      ${hearts ? `<span class="hearts">${'💛'.repeat(Math.min(hearts, 5))}${hearts > 5 ? `×${hearts}` : ''}</span>` : ''}
+    </div>`;
+  };
+
+  const shinyIds = Object.keys(shinyCaught).filter((id) => shinyCaught[id] > 0);
+  const normalIds = Object.keys(caught).filter((id) => caught[id].n > 0);
+  const total = normalIds.reduce((n, id) => n + caught[id].n, 0)
+              + shinyIds.reduce((n, id) => n + shinyCaught[id], 0);
+
+  if (!total) {
+    $('collectionBody').innerHTML = `<div class="empty">Nothing caught yet.<br>Go and find a Pokémon!</div>`;
+    return;
+  }
+  let html = `<p class="says">${total} caught · ${new Set([...normalIds, ...shinyIds]).size} different kinds</p>`;
+  if (shinyIds.length) {
+    html += `<div class="sectionhead">Sparkly ones ✨</div><div class="stacks">`
+         + shinyIds.map((id) => stack(id, shinyCaught[id], true, 0)).join('') + `</div>`;
+  }
+  if (normalIds.length) {
+    html += `<div class="sectionhead">${shinyIds.length ? 'Everyone else' : 'Caught'}</div><div class="stacks">`
+         + normalIds.sort((a, b) => caught[b].n - caught[a].n)
+             .map((id) => stack(id, caught[id].n, false, caught[id].hearts)).join('') + `</div>`;
+  }
+  $('collectionBody').innerHTML = html;
+}
+
+// --- Settings --------------------------------------------------------------
+function paintSettings() {
+  $('setShiny').value = String(settings.shinyOdds);
+  $('setSound').setAttribute('aria-checked', String(settings.sound));
+  $('setFlee').setAttribute('aria-checked', String(settings.fleeing));
+}
+$('setShiny').addEventListener('change', (e) => { settings.shinyOdds = Number(e.target.value); sinceShiny = 0; saveAll(); });
+$('setSound').addEventListener('click', () => { settings.sound = !settings.sound; saveAll(); paintSettings(); if (settings.sound) sfx.tick(); });
+$('setFlee').addEventListener('click', () => { settings.fleeing = !settings.fleeing; saveAll(); paintSettings(); });
+$('resetBtn').addEventListener('click', () => {
+  if (!confirm('Forget every Pokémon she has caught? This cannot be undone.')) return;
+  caught = {}; shinyCaught = {}; shinyWaiting = []; sinceShiny = 0;
+  saveAll(); renderCollection();
+  alert('All clear — a fresh start.');
+});
+
+// --- Wiring ----------------------------------------------------------------
+$('toCollection').addEventListener('click', () => { renderCollection(); show('collection'); });
+$('toSettings').addEventListener('click', () => { paintSettings(); show('settings'); });
+$('backFromCollection').addEventListener('click', () => show('pick'));
+$('backFromSettings').addEventListener('click', () => show('pick'));
+paintSettings();
+</script>
+</body>
+</html>
