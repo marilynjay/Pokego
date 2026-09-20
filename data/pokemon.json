@@ -1,20 +1,123 @@
 {
-  "spriteBase": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork",
-  "note": "Her catchable list. Add a Pokemon by appending its PokeAPI dex id, name and types, then run `npm run add-cry -- <id>` to fetch its cry.",
+  "spriteBase": "assets/art",
+  "note": "Her catchable list. Add a Pokemon by appending its PokeAPI dex id, name and types, then run `npm run add-mon -- <id>` to fetch its artwork and cry.",
   "mon": [
-    { "id": 25,  "name": "Pikachu",  "say": "PEEK-a-choo",      "types": ["Electric"] },
-    { "id": 4,   "name": "Charmander", "say": "CHAR-man-der",   "types": ["Fire"] },
-    { "id": 810, "name": "Grookey",  "say": "GROO-kee",         "types": ["Grass"] },
-    { "id": 94,  "name": "Gengar",   "say": "GHEN-gar",         "types": ["Ghost", "Poison"] },
-    { "id": 778, "name": "Mimikyu",  "say": "MIM-ee-kyoo",      "types": ["Ghost", "Fairy"] },
-    { "id": 122, "name": "Mr. Mime", "say": "mister MIME",      "types": ["Psychic", "Fairy"] },
-    { "id": 209, "name": "Snubbull", "say": "SNUB-bull",        "types": ["Fairy"] },
-    { "id": 54,  "name": "Psyduck",  "say": "SYE-duck",         "types": ["Water"] },
-    { "id": 272, "name": "Ludicolo", "say": "LOO-dee-CO-lo",    "types": ["Water", "Grass"] },
-    { "id": 725, "name": "Litten",   "say": "LIT-in",           "types": ["Fire"] },
-    { "id": 196, "name": "Espeon",   "say": "ESS-pee-on",       "types": ["Psychic"] },
-    { "id": 802, "name": "Marshadow","say": "MAR-shad-oh",      "types": ["Fighting", "Ghost"] },
-    { "id": 135, "name": "Jolteon",  "say": "JOLT-ee-on",       "types": ["Electric"] },
-    { "id": 134, "name": "Vaporeon", "say": "vay-POR-ee-on",    "types": ["Water"] }
+    {
+      "id": 25,
+      "name": "Pikachu",
+      "say": "PEEK-a-choo",
+      "types": [
+        "Electric"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Charmander",
+      "say": "CHAR-man-der",
+      "types": [
+        "Fire"
+      ]
+    },
+    {
+      "id": 810,
+      "name": "Grookey",
+      "say": "GROO-kee",
+      "types": [
+        "Grass"
+      ]
+    },
+    {
+      "id": 94,
+      "name": "Gengar",
+      "say": "GHEN-gar",
+      "types": [
+        "Ghost",
+        "Poison"
+      ]
+    },
+    {
+      "id": 778,
+      "name": "Mimikyu",
+      "say": "MIM-ee-kyoo",
+      "types": [
+        "Ghost",
+        "Fairy"
+      ]
+    },
+    {
+      "id": 122,
+      "name": "Mr. Mime",
+      "say": "mister MIME",
+      "types": [
+        "Psychic",
+        "Fairy"
+      ]
+    },
+    {
+      "id": 209,
+      "name": "Snubbull",
+      "say": "SNUB-bull",
+      "types": [
+        "Fairy"
+      ]
+    },
+    {
+      "id": 54,
+      "name": "Psyduck",
+      "say": "SYE-duck",
+      "types": [
+        "Water"
+      ]
+    },
+    {
+      "id": 272,
+      "name": "Ludicolo",
+      "say": "LOO-dee-CO-lo",
+      "types": [
+        "Water",
+        "Grass"
+      ]
+    },
+    {
+      "id": 725,
+      "name": "Litten",
+      "say": "LIT-in",
+      "types": [
+        "Fire"
+      ]
+    },
+    {
+      "id": 196,
+      "name": "Espeon",
+      "say": "ESS-pee-on",
+      "types": [
+        "Psychic"
+      ]
+    },
+    {
+      "id": 802,
+      "name": "Marshadow",
+      "say": "MAR-shad-oh",
+      "types": [
+        "Fighting",
+        "Ghost"
+      ]
+    },
+    {
+      "id": 135,
+      "name": "Jolteon",
+      "say": "JOLT-ee-on",
+      "types": [
+        "Electric"
+      ]
+    },
+    {
+      "id": 134,
+      "name": "Vaporeon",
+      "say": "vay-POR-ee-on",
+      "types": [
+        "Water"
+      ]
+    }
   ]
 }

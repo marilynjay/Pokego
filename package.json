@@ -7,7 +7,7 @@
   "scripts": {
     "serve": "python3 -m http.server 8123",
     "build-icons": "node tools/make-icons.mjs",
-    "add-cry": "node tools/add-cry.mjs",
+    "add-mon": "node tools/add-mon.mjs",
     "test": "node tests/smoke.mjs"
   },
   "devDependencies": {

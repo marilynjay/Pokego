@@ -73,6 +73,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .btn.primary[disabled] { opacity: .4; }
 .btn.quiet { min-height: 48px; font-weight: 550; font-size: .95rem; box-shadow: none; }
 .row { display: flex; gap: 10px; margin-top: 12px; }
+#afterRow { flex-direction: column; }
 .row > * { flex: 1; }
 
 /* Top bar */
@@ -98,6 +99,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   position: relative; height: 300px; margin: 6px 0 4px;
   display: grid; place-items: center; overflow: hidden;
 }
+#monImg[data-failed] { display: none; }
 #monImg { max-width: 76%; max-height: 270px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
 #monImg.shiny { animation: shimmer 2.4s ease-in-out infinite; }
 @keyframes shimmer {
@@ -137,6 +139,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 /* Thrown ball + wobble */
 #ball { position: absolute; width: 74px; height: 74px; display: none; z-index: 3; }
+/* Both of these sizes are load-bearing. An inline <svg> with only a viewBox has
+   no intrinsic size, and Safari resolves that to nothing rather than to the
+   parent's box — which left the thrown ball invisible on her phone. */
+#ballInner { width: 100%; height: 100%; }
+#ball svg { display: block; width: 100%; height: 100%; }
 #ball.show { display: block; }
 @keyframes wobble {
   0%, 100% { transform: rotate(0deg); }
@@ -344,7 +351,9 @@ const BERRIES = [
 
 // --- Hand-drawn art --------------------------------------------------------
 // Drawn here rather than copied, so nothing copyrighted is committed.
+let clipSeq = 0;
 function ballArt(kind) {
+  const uid = `${kind}-${clipSeq++}`;   // ids must be unique across the document
   const tops = { poke: '#e3350d', great: '#2f6fd0', moon: '#2a2a55', master: '#6b3fa0' };
   const deco = {
     poke: '',
@@ -355,8 +364,8 @@ function ballArt(kind) {
              <path d="M36 40 L36 18 L50 32 L64 18 L64 40" stroke="#e86ab5" stroke-width="7" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`,
   };
   return `<svg viewBox="0 0 100 100" aria-hidden="true">
-    <defs><clipPath id="clip-${kind}"><circle cx="50" cy="50" r="46"/></clipPath></defs>
-    <g clip-path="url(#clip-${kind})">
+    <defs><clipPath id="clip-${uid}"><circle cx="50" cy="50" r="46"/></clipPath></defs>
+    <g clip-path="url(#clip-${uid})">
       <rect x="0" y="0" width="100" height="52" fill="${tops[kind]}"/>
       <rect x="0" y="48" width="100" height="52" fill="#f4f4f4"/>
       ${deco[kind]}
@@ -454,6 +463,11 @@ $('berryRow').innerHTML = BERRIES.map((b) => `
   </button>`).join('');
 
 let picked = { ball: null, berry: null };
+// "She threw it!" and "Throw again" both fire a throw, so both wait on a ball.
+function syncThrow() {
+  $('throwBtn').disabled = !picked.ball;
+  $('againBtn').disabled = !picked.ball && $('againBtn').dataset.mode === 'again';
+}
 
 function selectChoice(row, attr, key) {
   for (const el of $(row).children) el.setAttribute('aria-pressed', String(el.dataset[attr] === key));
@@ -462,7 +476,7 @@ $('ballRow').addEventListener('click', (e) => {
   const btn = e.target.closest('.choice'); if (!btn || busy) return;
   picked.ball = picked.ball === btn.dataset.ball ? null : btn.dataset.ball;
   selectChoice('ballRow', 'ball', picked.ball);
-  $('throwBtn').disabled = !picked.ball;
+  syncThrow();
   // Say out loud why the Moon Ball is or isn't the right pick here.
   if (picked.ball === 'moon') {
     $('hint').textContent = isMoony(current.mon)
@@ -513,6 +527,8 @@ function meet(mon) {
   selectChoice('berryRow', 'berry', null);
 
   const img = $('monImg');
+  delete img.dataset.failed;
+  img.onerror = () => { img.dataset.failed = '1'; };
   img.src = art(mon, shiny);
   img.alt = `${shiny ? 'Shiny ' : ''}${mon.name}`;
   img.classList.toggle('shiny', shiny);
@@ -576,10 +592,16 @@ async function throwBall() {
   if (busy || !picked.ball) return;
   busy = true;
   current.throws++;
+  // Every throw looks the same from here, whether it started at "She threw it!"
+  // or at "Throw again" — same buttons, same place, so nothing jumps.
+  $('afterRow').hidden = true;
+  $('throwBtn').hidden = false;
   $('throwBtn').disabled = true;
   $('berryCard').hidden = true;
   $('ballCard').hidden = true;
   $('hint').textContent = '';
+  $('headline').innerHTML = current.shiny
+    ? `A <span class="shinyword">sparkly ✨ ${current.mon.name}</span>!` : `A wild ${current.mon.name}!`;
 
   const result = resolve();
   const img = $('monImg'), ball = $('ball'), flash = $('flash');
@@ -656,20 +678,24 @@ function finish(outcome) {
   picked.berry = null;
   selectChoice('berryRow', 'berry', null);
 
+  again.className = 'btn primary';
+  done.className = 'btn quiet';
   if (outcome === 'caught') {
     $('headline').innerHTML = current.shiny
       ? `Gotcha! <span class="shinyword">Sparkly ${name}</span> was caught! ✨`
       : `Gotcha! ${name} was caught! 🎉`;
     $('hint').textContent = 'Go and give it a cuddle.';
     again.hidden = true;
+    done.className = 'btn primary';
     done.textContent = 'Catch another!';
   } else if (outcome === 'out') {
     $('headline').textContent = `Oh no — ${name} broke out!`;
-    $('hint').textContent = 'It is still right there. Try again!';
+    $('hint').textContent = 'It is still right there. Tap to throw again!';
     again.hidden = false;
     again.dataset.mode = 'again';
     again.textContent = 'Throw again';
     done.textContent = 'Someone else';
+    // Left showing so a berry or a different ball can go in before the re-throw.
     $('berryCard').hidden = false;
     $('ballCard').hidden = false;
   } else {
@@ -682,19 +708,17 @@ function finish(outcome) {
     again.textContent = 'She found it!';
     done.textContent = 'Someone else';
   }
+  syncThrow();
 }
 
 $('throwBtn').addEventListener('click', throwBall);
 $('doneBtn').addEventListener('click', () => show('pick'));
 $('againBtn').addEventListener('click', () => {
-  if ($('againBtn').dataset.mode === 'refind') return meet(current.mon);  // fresh encounter, same Pokémon
-  // Same encounter: the stats and the sparkle stay exactly as they were.
-  $('throwBtn').hidden = false;
-  $('throwBtn').disabled = !picked.ball;
-  $('afterRow').hidden = true;
-  $('headline').innerHTML = current.shiny
-    ? `A <span class="shinyword">sparkly ✨ ${current.mon.name}</span>!` : `A wild ${current.mon.name}!`;
-  $('hint').textContent = '';
+  // A getaway ends the encounter, so finding it again rolls a fresh one. A
+  // break-out does not: she is still throwing at the same animal, so this
+  // throws straight away rather than making a grown-up tap twice.
+  if ($('againBtn').dataset.mode === 'refind') return meet(current.mon);
+  throwBall();
 });
 $('backFromMeet').addEventListener('click', () => { if (!busy) show('pick'); });
 

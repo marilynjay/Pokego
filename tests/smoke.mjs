@@ -35,15 +35,11 @@ const found = process.env.CHROME_PATH
   ?? globSync('/opt/pw-browsers/chromium-*/chrome-linux/chrome').find(existsSync);
 const browser = await chromium.launch(found ? { executablePath: found } : {});
 
-// One pixel instead of fourteen megabytes of artwork from the CDN: the tests
-// are about the rules, and this keeps them runnable with no network.
-const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
 
 /** Opens a fresh page. `rng` is the queue Math.random() reads from, in order;
  *  once it runs dry the last value repeats. */
 async function open({ rng = [0.5], settings = {}, reducedMotion = 'reduce' } = {}) {
   const ctx = await browser.newContext({ reducedMotion });
-  await ctx.route('**/PokeAPI/sprites/**', (route) => route.fulfill({ contentType: 'image/png', body: PIXEL }));
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -65,6 +61,14 @@ async function open({ rng = [0.5], settings = {}, reducedMotion = 'reduce' } = {
 const meet = async (page, name) => {
   await page.locator('.pick', { has: page.locator(`b:text-is("${name}")`) }).first().click();
   await page.waitForSelector('#s-meet.on');
+};
+/** Break-outs re-throw from the result button, in a single tap. */
+const throwAgain = async (page, berry) => {
+  if (berry) await page.click(`[data-berry="${berry}"]`);
+  await page.click('#againBtn');
+  await page.waitForSelector('#afterRow', { state: 'hidden' });   // the throw started
+  await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
+  return page.locator('#headline').innerText();
 };
 const throwWith = async (page, ball, berry) => {
   if (berry) await page.click(`[data-berry="${berry}"]`);
@@ -135,8 +139,7 @@ console.log('\nbreaking out, then hiding');
   const first = await throwWith(page, 'poke');
   ok('first miss breaks out, never hides', first.includes('broke out'), first);
   ok('it is still there to throw at again', await page.locator('#ballCard').isVisible());
-  await page.click('#againBtn');
-  const second = await throwWith(page, 'poke');
+  const second = await throwAgain(page);
   ok('a later miss can hide in another room', second.includes('another room'), second);
   ok('offers to go and find it', (await page.locator('#againBtn').innerText()).includes('found it'));
   await ctx.close();
@@ -148,8 +151,7 @@ console.log('\nberries');
   const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.99, 0.99, 0.0] });
   await meet(page, 'Gengar');
   await throwWith(page, 'poke');
-  await page.click('#againBtn');
-  const second = await throwWith(page, 'poke', 'nanab');
+  const second = await throwAgain(page, 'nanab');
   ok('a Nanab berry stops it hiding', second.includes('broke out'), second);
   await ctx.close();
 }
@@ -254,6 +256,62 @@ console.log('\nnothing moving, for anyone who asked for that');
   const head = await throwWith(page, 'poke');
   ok('the full animation still resolves, with sound on', head.includes('Gotcha'), head);
   ok('and throws no errors doing it', errors.length === 0, errors[0]);
+  await ctx.close();
+}
+
+console.log('\nthrowing again takes one tap');
+{
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.99, 0.99, 0.99] });
+  await meet(page, 'Gengar');
+  await throwWith(page, 'poke');
+  ok('the throw button gets out of the way', await page.locator('#throwBtn').isHidden());
+  ok('and the retry is the big one', (await page.locator('#againBtn').getAttribute('class')).includes('primary'));
+  const second = await throwAgain(page);
+  ok('one tap resolves a whole second throw', second.includes('broke out'), second);
+  ok('the ball stayed picked', await page.locator('[data-ball="poke"]').getAttribute('aria-pressed') === 'true');
+  // Un-picking the ball has to disable it, since it now throws directly.
+  await page.click('[data-ball="poke"]');
+  ok('no ball means no throw', await page.locator('#againBtn').isDisabled());
+  await page.click('[data-ball="great"]');
+  ok('picking another re-enables it', !(await page.locator('#againBtn').isDisabled()));
+  await ctx.close();
+}
+
+console.log('\nthe artwork and the thrown ball actually render');
+{
+  const { page, ctx, errors } = await open({ reducedMotion: 'no-preference', rng: [0.5, 0.99, 0.5, 0.99] });
+  const box = await page.locator('#pickGrid .pick img').first().boundingBox();
+  ok('the pick grid draws real pictures', box.width > 40 && box.height > 40, JSON.stringify(box));
+  ok('served from this repo, not a CDN',
+    !(await page.locator('#pickGrid .pick img').first().getAttribute('src')).startsWith('http'));
+  ok('every picture loads', await page.evaluate(
+    () => Array.from(document.querySelectorAll('#pickGrid img')).every((i) => i.complete && i.naturalWidth > 0)));
+
+  await meet(page, 'Gengar');
+  await page.waitForFunction(() => { const i = document.getElementById('monImg'); return i.complete && i.naturalWidth > 0; });
+  const mon = await page.locator('#monImg').boundingBox();
+  ok('the Pokémon fills the stage', mon.height > 150, JSON.stringify(mon));
+
+  // The bug this guards: an inline <svg> with only a viewBox has no intrinsic
+  // size, and Safari gave the thrown ball a zero-height box.
+  await page.click('[data-ball="poke"]');
+  await page.click('#throwBtn');
+  await page.waitForSelector('#ball.show');
+  // Computed size, not the bounding box: mid-flight the ball is scaled down, and
+  // it was the CSS size resolving to zero that broke it on iOS.
+  const ball = await page.evaluate(() => {
+    const px = (el) => { const c = getComputedStyle(el); return [parseFloat(c.width), parseFloat(c.height)]; };
+    return { inner: px(document.getElementById('ballInner')), svg: px(document.querySelector('#ball svg')) };
+  });
+  ok('the thrown ball resolves to a real size',
+    ball.svg[0] > 60 && ball.svg[1] > 60 && ball.inner[0] > 60 && ball.inner[1] > 60, JSON.stringify(ball));
+  const ids = await page.evaluate(() => {
+    const all = Array.from(document.querySelectorAll('[id^="clip-"]')).map((e) => e.id);
+    return { count: all.length, unique: new Set(all).size };
+  });
+  ok('no two clip paths share an id', ids.count === ids.unique, JSON.stringify(ids));
+  await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
+  ok('no errors through a full throw', errors.length === 0, errors[0]);
   await ctx.close();
 }
 

@@ -20,6 +20,10 @@ It does not play the game. It watches, and rules on it.
 Three things can happen: **caught**, **broke out** (it's still right there, throw
 again) or **ran to another room** (go and find it). Each has its own sound.
 
+After a break-out, **Throw again** throws — one tap, not two. She is still
+aiming at the same animal, and the ball she picked stays picked. The berry and
+ball rows stay on screen, so a berry can go in first if she hands one over.
+
 ## The rules it uses
 
 ### Catching
@@ -127,10 +131,12 @@ Append it to `data/pokemon.json` — dex id, name, a phonetic respelling and its
 types — then fetch its cry:
 
 ```sh
-npm run add-cry -- 133
+npm run add-mon -- 133
 ```
 
-The pick grid, the Moon Ball rule and the collection all follow from that file.
+That pulls down its artwork (normal and shiny) and its cry. The pick grid, the
+Moon Ball rule and the collection all follow from the data file.
+
 The cry step needs `ffmpeg` on PATH (or `pip install imageio-ffmpeg`): PokéAPI
 publishes cries as Ogg Vorbis, which Safari cannot decode at all, so an iPhone
 would play nothing without the conversion to MP3.
@@ -141,9 +147,10 @@ would play nothing without the conversion to MP3.
 | --- | --- |
 | `index.html` | The whole app — markup, styles and logic |
 | `data/pokemon.json` | Her fourteen catchable Pokémon |
+| `assets/art/` | Artwork, normal and shiny, committed rather than hotlinked |
 | `assets/cries/` | One MP3 cry each, converted from PokéAPI's Ogg |
 | `assets/icon.svg` | Home-screen icon, drawn by hand |
-| `tools/add-cry.mjs` | Fetches and converts one more cry |
+| `tools/add-mon.mjs` | Fetches one more Pokémon's artwork and cry |
 | `tools/make-icons.mjs` | Rasterises the SVG to the PNGs iOS and Android need |
 | `tests/smoke.mjs` | Playwright walk-through of the whole game |
 
@@ -165,6 +172,19 @@ arpeggio for a catch, a descending wobble for a break-out, a whoosh for a
 getaway. No audio files to license or download, and it works offline.
 
 The cries are the real ones, and they are the only audio committed here.
+
+## Artwork is committed, not hotlinked
+
+The first version streamed artwork from the PokéAPI sprite CDN. On a phone that
+left the stage blank whenever the CDN was slow or unreachable — an empty box
+where the Pokémon should be, which is no good when the person looking at it
+can't read the name underneath. All twenty-eight images (fourteen normal,
+fourteen shiny) now ship in `assets/art` and are served from the same place as
+the page, so they are exactly as reliable as the app itself. It costs 3.5 MB in
+the repo, which for fourteen Pokémon is a bargain.
+
+If an image somehow still fails, the stage falls back to the name and the app
+keeps working.
 
 ## Credits
 
