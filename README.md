@@ -272,6 +272,10 @@ and the reset. `Math.random` is stubbed with a queue, so each rule is checked on
 an exact roll rather than hoped at — the easing test throws the *same* roll four
 times and expects the fourth to land.
 
+They also measure what is actually on screen: that the artwork loads, that the
+thrown ball has a real computed size, and that neither goes invisible after a
+catch or a break-out.
+
 ## Sound
 
 Synthesised in the browser with WebAudio rather than sampled — a rising
@@ -292,6 +296,30 @@ the repo, which for fourteen Pokémon is a bargain.
 
 If an image somehow still fails, the stage falls back to the name and the app
 keeps working.
+
+## The one thing that keeps going invisible
+
+Twice now something has vanished from the stage, and both times it was the same
+root cause: **an animation with `fill: 'forwards'` keeps its end value in the
+cascade above inline styles.** It does not wear off, and `el.style.opacity = '1'`
+cannot undo it.
+
+- The catch animation ends at `opacity: 0` on the Pokémon. Every *encounter*
+  after a catch rendered an empty stage.
+- The break-out burst ends at `opacity: 0` on the ball. Every *throw* after a
+  break-out flew invisible, so the catch screen came up blank.
+
+Both are fixed by cancelling leftover animations at the two points where these
+elements get reused — the start of an encounter, and the start of a throw:
+
+```js
+const clearAnims = (el) => el && el.getAnimations?.().forEach((a) => a.cancel());
+```
+
+If something disappears again, this is the first thing to suspect, and the giveaway
+is that the element is still the right size — 74×74, `display: block` — just at
+zero opacity. Both cases have a test that was checked by reverting the fix and
+watching it fail.
 
 ## Credits
 

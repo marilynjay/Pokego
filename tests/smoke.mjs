@@ -511,6 +511,38 @@ console.log('\nbreaking out, it uses a move on her');
   ok('every move carries a name, a type and a class', bad.length === 0, JSON.stringify(bad[0]));
 }
 
+console.log('\nthe ball is visible on the second throw too');
+{
+  // The break-out burst ends at opacity 0 with fill:'forwards'. The next throw
+  // only animates transform, so nothing took that opacity back off and the
+  // whole throw — including the catch screen — rendered empty.
+  const { page, ctx } = await open({ reducedMotion: 'no-preference', rng: [0.5, 0.99, 0.5, 0.0, 0.99, 0.0] });
+  const ballState = () => page.evaluate(() => {
+    const b = document.getElementById('ball');
+    const svg = b.querySelector('svg');
+    const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+    return { opacity: Number(getComputedStyle(b).opacity), display: getComputedStyle(b).display,
+             w: Math.round(r.width), h: Math.round(r.height) };
+  });
+
+  await meet(page, 'Gengar');
+  const first = await throwWith(page, 'poke');
+  ok('the first throw breaks out', first.includes('broke out'), first);
+
+  // Catch it on the second throw and check the ball is actually on screen.
+  await page.click('#againBtn');
+  await page.waitForSelector('#ball.show');
+  await page.waitForTimeout(700);
+  const mid = await ballState();
+  ok('the second ball is visible in flight', mid.opacity === 1 && mid.w > 30, JSON.stringify(mid));
+
+  await page.waitForSelector('#afterRow:not([hidden])', { timeout: 15000 });
+  ok('and it was a catch', (await page.locator('#headline').innerText()).includes('Gotcha'));
+  const end = await ballState();
+  ok('and the catch screen is not empty', end.opacity === 1 && end.h > 30, JSON.stringify(end));
+  await ctx.close();
+}
+
 await browser.close();
 stop();
 console.log(`\n${passed} passed, ${failures.length} failed`);

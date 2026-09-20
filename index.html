@@ -768,6 +768,12 @@ async function throwBall() {
 
   const result = resolve();
   const img = $('monImg'), ball = $('ball'), flash = $('flash');
+  // Every throw starts from a clean slate. The previous throw's animations are
+  // still filling forwards, and the break-out burst ends at opacity 0 on the
+  // ball — so a second throw at the same Pokémon would fly the whole way
+  // invisible, because the new animations only touch transform and nothing
+  // takes that opacity back off.
+  clearAnims(img); clearAnims(ball); clearAnims($('ballInner')); clearAnims(flash);
   ball.innerHTML = `<div id="ballInner">${ballArt(picked.ball)}</div>`;
   const inner = $('ballInner');
   ball.className = 'show';
