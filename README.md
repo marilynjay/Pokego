@@ -179,6 +179,13 @@ Add it to the home screen and it opens full-screen with its own icon. Sound
 needs one tap anywhere first — that's a browser rule, and the first tap of a
 turn satisfies it.
 
+**After a deploy it may keep showing you the old version.** Pages serves the
+HTML with a ten-minute cache, and a home-screen web app holds on to it longer
+than Safari does. Close the app from the app switcher and reopen it, or pull
+down to reload in Safari. The bottom of **Grown-up settings** shows the build
+time of whatever you are actually running, so you can tell at a glance rather
+than guessing.
+
 ## Adding a Pokémon
 
 Append it to `data/pokemon.json` — dex id, name, a phonetic respelling and its

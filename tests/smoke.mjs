@@ -436,6 +436,33 @@ console.log('\nthe Pokémon is still there after the last one was caught');
   await ctx.close();
 }
 
+console.log('\nyou can tell which version you are running');
+{
+  const { page, ctx } = await open();
+  await page.click('#toSettings');
+  const stamp = await page.locator('#buildStamp').innerText();
+  ok('settings names the build', /^Version: .+\d{4}/.test(stamp), stamp);
+  await ctx.close();
+}
+{
+  // With the ticker disabled, only the start-up paint can lock the tile — which
+  // is where paintMaster() belongs, and where it briefly wasn't.
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.addInitScript(() => {
+    window.setInterval = () => 0;
+    try {
+      localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, fleeing: true, masterCooldown: 3 }));
+      localStorage.setItem('pokego.masterReadyAt', JSON.stringify(Date.now() + 120000));
+    } catch { /* ignore */ }
+  });
+  await page.goto(URL);
+  await page.waitForSelector('#pickGrid .pick');
+  ok('a stored cooldown shows without waiting for a tick',
+    (await page.locator('[data-ball="master"]').getAttribute('class')).includes('locked'));
+  await ctx.close();
+}
+
 await browser.close();
 stop();
 console.log(`\n${passed} passed, ${failures.length} failed`);

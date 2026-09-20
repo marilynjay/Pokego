@@ -296,6 +296,7 @@ select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px sol
     </div>
     <div class="row"><button class="btn quiet" id="resetBtn">Reset everything she's caught</button></div>
     <div class="row"><button class="btn quiet" id="backFromSettings">← Back</button></div>
+    <p class="says" id="buildStamp"></p>
   </section>
 
 </div>
@@ -882,8 +883,7 @@ $('setCooldown').addEventListener('change', (e) => {
   if (settings.masterCooldown === 0) masterReadyAt = 0;   // switching it off clears any wait
   saveAll(); paintMaster();
 });
-$('setSound').addEventListener('click', () => { settings.sound = !settings.sound; saveAll(); paintSettings();
-paintMaster(); if (settings.sound) sfx.tick(); });
+$('setSound').addEventListener('click', () => { settings.sound = !settings.sound; saveAll(); paintSettings(); if (settings.sound) sfx.tick(); });
 $('setFlee').addEventListener('click', () => { settings.fleeing = !settings.fleeing; saveAll(); paintSettings(); });
 $('resetBtn').addEventListener('click', () => {
   if (!confirm('Forget every Pokémon she has caught? This cannot be undone.')) return;
@@ -897,7 +897,14 @@ $('toCollection').addEventListener('click', () => { renderCollection(); show('co
 $('toSettings').addEventListener('click', () => { paintSettings(); show('settings'); });
 $('backFromCollection').addEventListener('click', () => show('pick'));
 $('backFromSettings').addEventListener('click', () => show('pick'));
+
+// Pages caches the HTML for ten minutes and a home-screen web app holds on to
+// it harder than that, so "am I actually running the new one?" is a real
+// question. document.lastModified is the deploy time, straight from the server.
+$('buildStamp').textContent = `Version: ${document.lastModified}`;
+
 paintSettings();
+paintMaster();
 </script>
 </body>
 </html>
