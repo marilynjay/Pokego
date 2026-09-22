@@ -85,9 +85,17 @@ const throwWith = async (page, ball, berry) => {
 console.log('\nthe pick screen');
 {
   const { page, ctx, errors } = await open();
-  ok('shows all fourteen', await page.locator('#pickGrid .pick').count() === 14);
-  ok('Snubbull is spelled with two bs', (await page.locator('#pickGrid').innerText()).includes('Snubbull'));
-  ok('no Marshadow typo', (await page.locator('#pickGrid').innerText()).includes('Marshadow'));
+  // Counted from the data file rather than hard-coded, so adding a Pokémon
+  // does not fail a test that was only ever describing the old list.
+  const mon = JSON.parse(readFileSync(join(ROOT, 'data/pokemon.json'), 'utf8')).mon;
+  ok(`shows all ${mon.length}`, await page.locator('#pickGrid .pick').count() === mon.length);
+  const grid = await page.locator('#pickGrid').innerText();
+  const absent = mon.filter((m) => !grid.includes(m.name)).map((m) => m.name);
+  ok('every one of them by name', absent.length === 0, absent.join(', '));
+  // The ones that are easy to get wrong, spelled out so a typo in the data
+  // file is a failing test rather than something she has to notice.
+  for (const name of ['Snubbull', 'Marshadow', 'Mimikyu', 'Lapras', 'Sprigatito', 'Fuecoco', 'Quaxly', 'Bulbasaur'])
+    ok(`${name} is spelled right`, grid.includes(name));
   ok('loads without console errors', errors.length === 0, errors[0]);
   await ctx.close();
 }
@@ -506,7 +514,7 @@ console.log('\nbreaking out, it uses a move on her');
   const moves = JSON.parse(readFileSync(join(ROOT, 'data/moves.json'), 'utf8')).moves;
   const mon = JSON.parse(readFileSync(join(ROOT, 'data/pokemon.json'), 'utf8')).mon;
   const thin = mon.filter((m) => (moves[m.id] ?? []).length < 8).map((m) => m.name);
-  ok('all fourteen have a decent spread of moves', thin.length === 0, thin.join(', '));
+  ok('every Pokémon has a decent spread of moves', thin.length === 0, thin.join(', '));
   const bad = Object.values(moves).flat().filter((m) => !m.name || !m.type || !m.class);
   ok('every move carries a name, a type and a class', bad.length === 0, JSON.stringify(bad[0]));
 }

@@ -8,7 +8,7 @@ It does not play the game. It watches, and rules on it.
 
 ## How a turn goes
 
-1. **Who did you find?** — fourteen big picture buttons.
+1. **Who did you find?** — 23 big picture buttons.
 2. **Stats** get rolled: how it's feeling, how hard it is to catch (1–10), how
    strong it is (1–10), how much it's **wiggling** (1–10), and its type.
 3. **Berry?** — if she handed it one of the 3D-printed berries, tap it.
@@ -115,12 +115,12 @@ it:
 > **Pikachu used Thunder Wave!**
 > It's being sneaky! Wiggle about so it doesn't work!
 
-The moves are real. `data/moves.json` holds every move each of the fourteen
-learns by levelling up, in any game, built from PokéAPI's source CSVs by
+The moves are real. `data/moves.json` holds every move each of them learns by
+levelling up, in any game, built from PokéAPI's source CSVs by
 `npm run build-moves`. That's its signature set rather than every TM it could
-ever be taught — Gengar gets Hypnosis and Shadow Ball, not Thunderbolt. It runs
-from 11 moves for Grookey to 33 for Mr. Mime, and the tests fail if any of them
-drops below 8, so nobody quietly ends up with three.
+ever be taught — Gengar gets Hypnosis and Shadow Ball, not Thunderbolt. Lists
+run from 11 moves to 33, and the tests fail if any Pokémon drops below 8, so
+nobody quietly ends up with three.
 
 What she should do about it comes from the move's **type**, since that's what
 decides whether it's a shower of sparks or a faceful of sludge — duck, roll,
@@ -141,12 +141,13 @@ otherwise quietly change an outcome somewhere else.
 ### The Moon Ball
 
 The real rule — a boost only for Pokémon that evolve with a Moon Stone —
-catches none of her fourteen, so the Moon Ball would be a Poké Ball with a nicer
+catches none of hers, so the Moon Ball would be a Poké Ball with a nicer
 paint job. The house rule instead: **it's the ball for the spooky and sparkly
 ones**, meaning anything Ghost, Fairy, Psychic or Dark. That's Gengar, Mimikyu,
-Mr. Mime, Snubbull, Espeon and Marshadow — six of the fourteen, so it's a real
-choice rather than an auto-win, and it's a rule a three-year-old can learn to
-predict. The app says out loud which it is when you pick the ball, so she hears
+Mr. Mime, Snubbull, Espeon and Marshadow — six of the 23, so it's a real choice
+rather than an auto-win, and it's a rule a three-year-old can learn to predict.
+None of the Pokémon added since are Ghost, Fairy, Psychic or Dark, so the Moon
+Ball still points at exactly those six. The app says out loud which it is when you pick the ball, so she hears
 the reason either way.
 
 Add a Ghost or Fairy to `data/pokemon.json` and the rule covers it with no code
@@ -249,7 +250,7 @@ would play nothing without the conversion to MP3.
 | Path | What it is |
 | --- | --- |
 | `index.html` | The whole app — markup, styles and logic |
-| `data/pokemon.json` | Her fourteen catchable Pokémon |
+| `data/pokemon.json` | Her 23 catchable Pokémon |
 | `assets/art/` | Artwork, normal and shiny, committed rather than hotlinked |
 | `assets/cries/` | One MP3 cry each, converted from PokéAPI's Ogg |
 | `assets/icon.svg` | Home-screen icon, drawn by hand |
@@ -289,10 +290,10 @@ The cries are the real ones, and they are the only audio committed here.
 The first version streamed artwork from the PokéAPI sprite CDN. On a phone that
 left the stage blank whenever the CDN was slow or unreachable — an empty box
 where the Pokémon should be, which is no good when the person looking at it
-can't read the name underneath. All twenty-eight images (fourteen normal,
-fourteen shiny) now ship in `assets/art` and are served from the same place as
-the page, so they are exactly as reliable as the app itself. It costs 3.5 MB in
-the repo, which for fourteen Pokémon is a bargain.
+can't read the name underneath. Every image, normal and shiny, now ships in
+`assets/art` and is served from the same place as the page, so the artwork is
+exactly as reliable as the app itself. It costs 5.9M in the repo, which at this
+number of Pokémon is a bargain.
 
 If an image somehow still fails, the stage falls back to the name and the app
 keeps working.

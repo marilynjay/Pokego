@@ -7,6 +7,7 @@
 //
 //   npm run add-mon -- 133          # one id
 //   npm run add-mon -- --all        # everything in data/pokemon.json that is missing
+//   npm run add-mon -- --all --force  # re-fetch even what is already there
 import { mkdirSync, existsSync, writeFileSync, rmSync, readFileSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +30,7 @@ const ffmpeg = (() => {
 })();
 
 const args = process.argv.slice(2);
+const force = args.includes('--force');
 const data = JSON.parse(readFileSync(join(ROOT, 'data/pokemon.json'), 'utf8'));
 const complete = (id) => existsSync(join(OUT, `${id}.mp3`))
   && existsSync(join(ARTOUT, `${id}.png`)) && existsSync(join(ARTOUT, 'shiny', `${id}.png`));
@@ -47,20 +49,38 @@ async function download(url, to) {
   writeFileSync(to, Buffer.from(await res.arrayBuffer()));
 }
 
+// Artwork and cry are fetched independently: a missing ffmpeg should not cost
+// you the pictures, and a failed conversion must never delete a cry that was
+// already sitting there working perfectly well.
+let failures = 0;
 for (const id of wanted) {
-  const out = join(OUT, `${id}.mp3`), ogg = join(TMP, `${id}.ogg`);
-  try {
-    await download(`${ART}/${id}.png`, join(ARTOUT, `${id}.png`));
-    await download(`${ART}/shiny/${id}.png`, join(ARTOUT, 'shiny', `${id}.png`));
-    console.log(`  assets/art/${id}.png + shiny`);
-    await download(`${CRIES}/${id}.ogg`, ogg);
-    // Mono at 48k: a cry is about a second of noisy retro audio, so this sounds
-    // identical to the source at roughly half the bytes.
-    execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', ogg, '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '48k', out]);
-    console.log(`  assets/cries/${id}.mp3  (${statSync(out).size} bytes)`);
-  } catch (err) {
-    rmSync(out, { force: true });
-    console.error(`  ${id} failed: ${err.message}`);
-    if (String(err.message).includes('ENOENT')) console.error('  (no ffmpeg found — try `pip install imageio-ffmpeg`)');
+  for (const [what, file, get] of [
+    ['artwork', join(ARTOUT, `${id}.png`), async () => {
+      await download(`${ART}/${id}.png`, join(ARTOUT, `${id}.png`));
+      await download(`${ART}/shiny/${id}.png`, join(ARTOUT, 'shiny', `${id}.png`));
+      return `assets/art/${id}.png + shiny`;
+    }],
+    ['cry', join(OUT, `${id}.mp3`), async () => {
+      const ogg = join(TMP, `${id}.ogg`);
+      await download(`${CRIES}/${id}.ogg`, ogg);
+      // Mono at 48k: a cry is about a second of noisy retro audio, so this
+      // sounds identical to the source at roughly half the bytes.
+      execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', ogg, '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '48k', file]);
+      return `assets/cries/${id}.mp3  (${statSync(file).size} bytes)`;
+    }],
+  ]) {
+    const existed = existsSync(file);
+    if (existed && !force) { console.log(`  ${id} ${what} already there`); continue; }
+    try {
+      console.log(`  ${await get()}`);
+    } catch (err) {
+      if (!existed) rmSync(file, { force: true });   // clean up a half-written file, never a good one
+      failures++;
+      console.error(`  ${id} ${what} failed: ${err.message}`);
+      if (String(err.message).includes('ENOENT') && what === 'cry') {
+        console.error('  (no ffmpeg found — try `pip install imageio-ffmpeg`)');
+      }
+    }
   }
 }
+if (failures) process.exitCode = 1;

@@ -118,6 +118,82 @@
       "types": [
         "Water"
       ]
+    },
+    {
+      "id": 1,
+      "name": "Bulbasaur",
+      "say": "BULB-uh-sore",
+      "types": [
+        "Grass",
+        "Poison"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Charizard",
+      "say": "CHAR-iz-ard",
+      "types": [
+        "Fire",
+        "Flying"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Squirtle",
+      "say": "SKWUR-tul",
+      "types": [
+        "Water"
+      ]
+    },
+    {
+      "id": 74,
+      "name": "Geodude",
+      "say": "JEE-oh-dood",
+      "types": [
+        "Rock",
+        "Ground"
+      ]
+    },
+    {
+      "id": 131,
+      "name": "Lapras",
+      "say": "LAP-rus",
+      "types": [
+        "Water",
+        "Ice"
+      ]
+    },
+    {
+      "id": 399,
+      "name": "Bidoof",
+      "say": "BEE-doof",
+      "types": [
+        "Normal"
+      ]
+    },
+    {
+      "id": 906,
+      "name": "Sprigatito",
+      "say": "sprig-uh-TEE-toe",
+      "types": [
+        "Grass"
+      ]
+    },
+    {
+      "id": 909,
+      "name": "Fuecoco",
+      "say": "fway-KO-ko",
+      "types": [
+        "Fire"
+      ]
+    },
+    {
+      "id": 912,
+      "name": "Quaxly",
+      "say": "KWAKS-lee",
+      "types": [
+        "Water"
+      ]
     }
   ]
 }
