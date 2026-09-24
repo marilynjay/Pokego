@@ -56,10 +56,17 @@ body {
   overscroll-behavior: none;
 }
 #app { max-width: 720px; margin: 0 auto; padding: 12px 16px 28px; }
+#app:has(#s-meet.on) { padding-bottom: 6px; }
 h1, h2 { margin: 0; line-height: 1.15; }
 h1 { font-size: 1.45rem; }
 .screen { display: none; }
 .screen.on { display: block; }
+/* The one screen used every single turn, so the throw button has to be reachable
+   without scrolling. Everything below the picture is a fixed cost; the picture
+   takes whatever is left, which on a home-screen web app is a lot more than in
+   a browser tab. dvh rather than vh so it tracks Safari's chrome as it hides. */
+#s-meet.on { display: flex; flex-direction: column; height: calc(100dvh - 20px); }
+@supports not (height: 100dvh) { #s-meet.on { height: calc(100vh - 20px); } }
 
 /* Buttons are sized for a three-year-old's finger, not a cursor. */
 button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
@@ -71,10 +78,15 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   font-weight: 650; text-align: center;
 }
 .btn:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(0,0,0,0); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; min-height: 76px; font-size: 1.3rem; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; min-height: 66px; font-size: 1.22rem; }
 .btn.primary[disabled] { opacity: .4; }
 .btn.quiet { min-height: 48px; font-weight: 550; font-size: .95rem; box-shadow: none; }
-.row { display: flex; gap: 10px; margin-top: 12px; }
+.row { display: flex; gap: 10px; margin-top: 10px; }
+/* If a phone is small enough that it still does not all fit, the throw button
+   stays put rather than sliding under the fold — which is the bug this layout
+   exists to kill. */
+.throwrow { position: sticky; bottom: 0; padding-bottom: 4px; z-index: 6;
+  background: linear-gradient(to top, var(--bg) 78%, transparent); }
 #afterRow { flex-direction: column; }
 .row > * { flex: 1; }
 
@@ -98,11 +110,31 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 /* --- Encounter --------------------------------------------------------- */
 .stage {
-  position: relative; height: 300px; margin: 6px 0 4px;
+  /* The floor matters more than fitting on the very smallest phones: shrinking
+     the picture is the one thing this layout is not allowed to do. If a screen
+     is short enough that 200px of picture pushes the page over, the sticky
+     throw button below keeps the control reachable anyway. */
+  position: relative; flex: 1 1 auto; min-height: 200px; margin: 2px 0 4px;
   display: grid; place-items: center; overflow: hidden;
 }
+/* Out of the flow entirely: a whole row for a Back button is a row the throw
+   button could have had. */
+.backdot {
+  position: absolute; left: 0; top: 0; z-index: 5; width: 44px; height: 44px;
+  display: grid; place-items: center; border-radius: 13px; font-size: 1.15rem;
+  border: 2px solid var(--line); background: var(--panel); color: var(--dim);
+}
 #monImg[data-failed] { display: none; }
-#monImg { max-width: 76%; max-height: 270px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
+/* Absolutely positioned so its percentages have something definite to resolve
+   against. As an in-flow child of a flex item, height:100% quietly fell back to
+   the image's own aspect ratio and overflowed a shrunk stage, so the picture was
+   clipped rather than scaled whenever the move line needed the room. inset:0
+   with margin:auto centres it on both axes. */
+#monImg {
+  position: absolute; inset: 0; margin: auto;
+  max-width: 82%; max-height: 100%; width: auto; height: auto;
+  object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.22));
+}
 #monImg.shiny { animation: shimmer 2.4s ease-in-out infinite; }
 @keyframes shimmer {
   0%, 100% { filter: drop-shadow(0 8px 14px rgba(0,0,0,.22)); }
@@ -112,17 +144,20 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .sparkles span { position: absolute; font-size: 26px; animation: twinkle 1.8s ease-in-out infinite; }
 @keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.5); } 50% { opacity: 1; transform: scale(1.15); } }
 
-.headline { text-align: center; font-size: 1.35rem; font-weight: 800; min-height: 1.6em; }
+.headline { text-align: center; font-size: 1.22rem; font-weight: 800; min-height: 1.3em; }
 .headline .shinyword { color: var(--shiny); }
 .says { text-align: center; color: var(--dim); font-size: .95rem; margin-top: -2px; }
 
-.card { background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-top: 14px; }
-.card h2 { font-size: 1rem; color: var(--dim); font-weight: 700; letter-spacing: .03em; text-transform: uppercase; margin-bottom: 10px; }
-.stat { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
-.stat .label { width: 108px; flex: none; color: var(--dim); font-size: .92rem; }
+.card { background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px 14px; margin-top: 10px; }
+.card h2 { font-size: .82rem; color: var(--dim); font-weight: 700; letter-spacing: .03em; text-transform: uppercase; margin-bottom: 6px; }
+.card h2.second { margin-top: 9px; }
+.stat { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+.stat .label { width: 104px; flex: none; color: var(--dim); font-size: .88rem; }
 .stat .val { font-weight: 700; }
+/* Feeling and type share a line: two short things that do not need a row each. */
+.stat.headrow { justify-content: space-between; margin: 2px 0 7px; font-size: 1.02rem; }
 .pips { display: flex; gap: 4px; flex: 1; }
-.pips i { flex: 1; height: 14px; border-radius: 4px; background: var(--line); }
+.pips i { flex: 1; height: 11px; border-radius: 3px; background: var(--line); }
 .pips i.on { background: var(--accent); }
 .pips.hard i.on { background: var(--warn); }
 .pips.wig i.on { background: var(--wig); }
@@ -130,13 +165,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .type { font-size: .8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--line); }
 
 /* Ball / berry choosers */
-.choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .choice {
-  border-radius: 16px; border: 2px solid var(--line); background: var(--panel);
-  padding: 10px 4px 8px; display: grid; justify-items: center; gap: 4px; min-height: 96px;
+  border-radius: 14px; border: 2px solid var(--line); background: var(--panel);
+  padding: 7px 3px 6px; display: grid; justify-items: center; gap: 2px; min-height: 64px;
 }
-.choice svg { width: 46px; height: 46px; }
-.choice small { font-size: .74rem; font-weight: 700; line-height: 1.1; text-align: center; }
+.choice svg { width: 38px; height: 38px; }
+.choice small { font-size: .7rem; font-weight: 700; line-height: 1.1; text-align: center; }
 .choice[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
 /* A ball on cooldown stays visible and stays tappable — tapping it is how you
    find out how long is left, rather than nothing happening. */
@@ -145,15 +180,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .cool { font-size: .78rem; font-weight: 800; color: var(--bad); font-variant-numeric: tabular-nums; }
 /* Deliberately small and text-only: this one is for a grown-up, and it sits in
    the middle of a screen a small child is jabbing at. */
-.unlock { min-height: 40px !important; font-size: .85rem !important; font-weight: 600 !important; color: var(--dim); margin-top: 12px; border-style: dashed; }
+.unlock { min-height: 38px !important; font-size: .85rem !important; font-weight: 600 !important; color: var(--dim); margin-top: 12px; border-style: dashed; }
 /* The move it fires off after wriggling free. Loud enough to interrupt, since
    it is a cue for her to physically do something. */
-.moveout { text-align: center; margin-top: 12px; padding: 12px 14px; border-radius: 16px;
+.moveout { text-align: center; margin-top: 9px; padding: 9px 12px; border-radius: 15px;
   background: color-mix(in srgb, var(--warn) 12%, var(--panel));
   border: 2px solid color-mix(in srgb, var(--warn) 35%, var(--panel)); }
-.moveout b { display: block; font-size: 1.15rem; color: var(--warn); }
-.moveout span { display: block; font-size: 1.02rem; font-weight: 600; margin-top: 5px; }
-.hint { color: var(--dim); font-size: .85rem; text-align: center; margin-top: 8px; min-height: 1.3em; }
+.moveout b { display: block; font-size: 1.05rem; color: var(--warn); }
+.moveout span { display: block; font-size: .96rem; font-weight: 600; margin-top: 3px; }
+.hint { color: var(--dim); font-size: .85rem; text-align: center; margin-top: 7px; }
+.hint:empty { margin: 0; }
 
 /* Thrown ball + wobble */
 #ball { position: absolute; width: 74px; height: 74px; display: none; z-index: 3; }
@@ -223,6 +259,7 @@ select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px sol
   <!-- Encounter ----------------------------------------------------------->
   <section id="s-meet" class="screen">
     <div class="stage">
+      <button class="backdot" id="backFromMeet" aria-label="Back to the list">←</button>
       <div class="sparkles" id="sparkles" hidden></div>
       <img id="monImg" alt="">
       <div id="ball"></div>
@@ -233,32 +270,28 @@ select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px sol
     <div class="moveout" id="moveOut" hidden><b id="moveName"></b><span id="moveDodge"></span></div>
 
     <div class="card" id="statCard">
-      <h2>Stats</h2>
-      <div class="stat"><span class="label">Feeling</span><span class="val" id="stTemper"></span></div>
-      <div class="stat"><span class="label">Type</span><span class="types" id="stTypes"></span></div>
+      <div class="stat headrow"><span class="val" id="stTemper"></span><span class="types" id="stTypes"></span></div>
       <div class="stat"><span class="label">Hard to catch</span><span class="pips hard" id="stDiff"></span></div>
       <div class="stat"><span class="label">Strong</span><span class="pips" id="stPower"></span></div>
       <div class="stat"><span class="label">Wiggling</span><span class="pips wig" id="stWriggle"></span></div>
     </div>
 
-    <div class="card" id="berryCard">
-      <h2>Did she give it a berry?</h2>
+    <div class="card" id="choiceCard">
+      <h2>A berry?</h2>
       <div class="choices" id="berryRow"></div>
-    </div>
-
-    <div class="card" id="ballCard">
-      <h2>Which ball is she throwing?</h2>
+      <h2 class="second">Which ball?</h2>
       <div class="choices" id="ballRow"></div>
       <button class="btn quiet unlock" id="unlockMaster" hidden>I'm feeling generous — unlock it now</button>
     </div>
 
-    <div class="row"><button class="btn primary" id="throwBtn" disabled>She threw it!</button></div>
-    <div class="hint" id="hint"></div>
-    <div class="row" id="afterRow" hidden>
-      <button class="btn" id="againBtn">Throw again</button>
-      <button class="btn" id="doneBtn">Someone else</button>
+    <div class="throwrow">
+      <div class="row"><button class="btn primary" id="throwBtn" disabled>She threw it!</button></div>
+      <div class="hint" id="hint"></div>
+      <div class="row" id="afterRow" hidden>
+        <button class="btn" id="againBtn">Throw again</button>
+        <button class="btn" id="doneBtn">Someone else</button>
+      </div>
     </div>
-    <div class="row"><button class="btn quiet" id="backFromMeet">← Back</button></div>
   </section>
 
   <!-- Collection ---------------------------------------------------------->
@@ -383,18 +416,18 @@ const TEMPERS = [
 ];
 
 const BALLS = [
-  { key: 'poke',   name: 'Poké Ball',   mult: 1.0 },
-  { key: 'great',  name: 'Great Ball',  mult: 1.5 },
-  { key: 'moon',   name: 'Moon Ball',   mult: 2.0 },  // only on a moony Pokémon
-  { key: 'master', name: 'Master Ball', mult: Infinity },
+  { key: 'poke',   name: 'Poké Ball',   short: 'Poké',   mult: 1.0 },
+  { key: 'great',  name: 'Great Ball',  short: 'Great',  mult: 1.5 },
+  { key: 'moon',   name: 'Moon Ball',   short: 'Moon',   mult: 2.0 },  // only on a moony Pokémon
+  { key: 'master', name: 'Master Ball', short: 'Master', mult: Infinity },
 ];
 const BERRIES = [
-  { key: 'razz',   name: 'Razz',        mult: 1.5 },
+  { key: 'razz',   name: 'Razz',        short: 'Razz',   mult: 1.5 },
   // The Nanab's multiplier is not fixed: it is worth more the more the Pokémon
   // is wriggling about. See wriggleFactor below.
-  { key: 'nanab',  name: 'Nanab',       mult: null, calms: true },
-  { key: 'golden', name: 'Golden Razz', mult: 2.5 },
-  { key: 'pinap',  name: 'Pinap',       mult: 1.2, heart: true },
+  { key: 'nanab',  name: 'Nanab',       short: 'Nanab',  mult: null, calms: true },
+  { key: 'golden', name: 'Golden Razz', short: 'Golden', mult: 2.5 },
+  { key: 'pinap',  name: 'Pinap',       short: 'Pinap',  mult: 1.2, heart: true },
 ];
 
 // How much a Pokémon's wriggling is worth, with and without a Nanab berry. A
@@ -558,12 +591,12 @@ $('pickGrid').addEventListener('click', (e) => {
 // --- Choosers --------------------------------------------------------------
 $('ballRow').innerHTML = BALLS.map((b) => `
   <button class="choice" data-ball="${b.key}" aria-pressed="false">
-    ${ballArt(b.key)}<small>${b.name.replace(' ', '<br>')}</small>
+    ${ballArt(b.key)}<small>${b.short}</small>
     ${b.key === 'master' ? '<span class="cool" id="masterCool" hidden></span>' : ''}
   </button>`).join('');
 $('berryRow').innerHTML = BERRIES.map((b) => `
   <button class="choice" data-berry="${b.key}" aria-pressed="false">
-    ${berryArt(b.key)}<small>${b.name.replace(' ', '<br>')}</small>
+    ${berryArt(b.key)}<small>${b.short}</small>
   </button>`).join('');
 
 let picked = { ball: null, berry: null };
@@ -703,8 +736,7 @@ function meet(mon, carriedMisses = 0) {
   $('throwBtn').disabled = true;
   $('throwBtn').textContent = 'She threw it!';
   $('afterRow').hidden = true;
-  $('berryCard').hidden = false;
-  $('ballCard').hidden = false;
+  $('choiceCard').hidden = false;
   $('hint').textContent = '';
   $('moveOut').hidden = true;
   $('ball').className = '';
@@ -754,8 +786,7 @@ async function throwBall() {
   $('afterRow').hidden = true;
   $('throwBtn').hidden = false;
   $('throwBtn').disabled = true;
-  $('berryCard').hidden = true;
-  $('ballCard').hidden = true;
+  $('choiceCard').hidden = true;
   $('hint').textContent = '';
   $('moveOut').hidden = true;
   $('headline').innerHTML = current.shiny
@@ -877,8 +908,7 @@ function finish(outcome) {
     again.textContent = 'Throw again';
     done.textContent = 'Someone else';
     // Left showing so a berry or a different ball can go in before the re-throw.
-    $('berryCard').hidden = false;
-    $('ballCard').hidden = false;
+    $('choiceCard').hidden = false;
   } else {
     $('headline').textContent = `${name} ran to another room!`;
     $('hint').textContent = current.shiny

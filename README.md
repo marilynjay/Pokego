@@ -307,6 +307,36 @@ number of Pokémon is a bargain.
 If an image somehow still fails, the stage falls back to the name and the app
 keeps working.
 
+## It fits on one screen
+
+The throw button is used every single turn, so needing to scroll to reach it was
+the worst bug in the app. The encounter screen is now a flex column the height of
+the viewport, in `dvh` so it tracks the browser chrome as it hides and shows.
+Everything below the picture is a fixed cost; **the picture takes whatever is
+left**, which on a home-screen web app is a lot more than in a browser tab.
+
+That means the picture got *bigger*, not smaller — 326px on a Pro Max against
+the 270px the old fixed-height layout capped it at. It never goes below 200px,
+and below that floor the screen would rather overflow than shrink the picture:
+the sticky throw button keeps the control reachable either way.
+
+The rest was trimmed to buy the room: one chooser card instead of two, Back as a
+corner button instead of a whole row, feeling and type sharing a line, thinner
+pips, one-word labels on the tiles (the heading already says whether it's a ball
+or a berry).
+
+Two things worth knowing if you change this layout:
+
+- **A percentage height does not resolve against a flex parent** whose height is
+  still being worked out. `height: 100%` on the picture quietly fell back to its
+  own aspect ratio and overflowed a shrunk stage, so it was clipped rather than
+  scaled. It's absolutely positioned with `inset: 0; margin: auto` so its
+  percentages have something definite to resolve against.
+- The tests measure real phone viewports, including the short ones a browser's
+  chrome leaves behind, and check the button is above the fold and the picture
+  is unclipped — in the normal state *and* after a break-out, which is the
+  busiest the screen ever gets.
+
 ## The one thing that keeps going invisible
 
 Twice now something has vanished from the stage, and both times it was the same

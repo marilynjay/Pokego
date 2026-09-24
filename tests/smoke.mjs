@@ -155,7 +155,7 @@ console.log('\nbreaking out, then hiding');
   await meet(page, 'Gengar');
   const first = await throwWith(page, 'poke');
   ok('first miss breaks out, never hides', first.includes('broke out'), first);
-  ok('it is still there to throw at again', await page.locator('#ballCard').isVisible());
+  ok('it is still there to throw at again', await page.locator('#choiceCard').isVisible());
   const second = await throwAgain(page);
   ok('a later miss can hide in another room', second.includes('another room'), second);
   ok('offers to go and find it', (await page.locator('#againBtn').innerText()).includes('found it'));
@@ -556,6 +556,69 @@ console.log('\nthe ball is visible on the second throw too');
   const end = await ballState();
   ok('and the catch screen is not empty', end.opacity === 1 && end.h > 30, JSON.stringify(end));
   await ctx.close();
+}
+
+console.log('\nit all fits on one screen');
+{
+  // The bug this guards: the throw button sat below the fold, so every single
+  // turn started with a scroll. Heights are checked on real phone viewports,
+  // including the short ones a browser's chrome leaves behind.
+  // `roomy` is a phone with no browser chrome in the way, where the picture is
+  // expected to beat the 270px the old fixed-height layout capped it at.
+  const phones = [
+    ['iPhone SE in Safari', 375, 553, false],
+    ['iPhone SE installed', 375, 667, false],
+    ['iPhone 14 in Safari', 390, 730, false],
+    ['iPhone 14 installed', 390, 844, true],
+    ['Pro Max installed', 430, 932, true],
+  ];
+  for (const [label, width, height, roomy] of phones) {
+    const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      let i = 0; const q = [0.5, 0.99, 0.5, 0.5, 0.99];
+      Math.random = () => q[Math.min(i++, q.length - 1)];
+      try { localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, fleeing: true, masterCooldown: 3 })); } catch { /* ignore */ }
+    });
+    await page.goto(URL);
+    await page.waitForSelector('#pickGrid .pick');
+    await meet(page, 'Pikachu');
+    await page.waitForFunction(() => { const i = document.getElementById('monImg'); return i.complete && i.naturalWidth > 0; });
+
+    const seen = (id) => page.evaluate((x) => {
+      const r = document.getElementById(x).getBoundingClientRect();
+      return { bottom: Math.round(r.bottom), h: Math.round(r.height), vh: window.innerHeight };
+    }, id);
+
+    const before = await seen('throwBtn');
+    ok(`${label}: the throw button is on screen`, before.bottom <= before.vh,
+      `ends at ${before.bottom} of ${before.vh}`);
+
+    // The painted height, not the element box: with object-fit the box is the
+    // whole stage and the picture letterboxes inside it, so the box would
+    // flatter the measurement.
+    const pic = await page.evaluate(() => {
+      const i = document.getElementById('monImg');
+      const s = document.querySelector('.stage');
+      const r = i.getBoundingClientRect(), b = s.getBoundingClientRect();
+      return { h: Math.round(r.height),
+               clipped: r.top < b.top - 1 || r.bottom > b.bottom + 1 };
+    });
+    ok(`${label}: the picture is still big`, pic.h >= 200, `${pic.h}px tall`);
+    ok(`${label}: and not cropped`, !pic.clipped);
+    if (roomy) {
+      ok(`${label}: bigger than the old fixed layout managed`, pic.h >= 270, `${pic.h}px vs 270px`);
+    }
+
+    // And again in the busiest state there is: a break-out, which adds the move
+    // line and swaps one button for two.
+    await throwWith(page, 'poke');
+    const after = await seen('againBtn');
+    ok(`${label}: "Throw again" is on screen after a break-out`, after.bottom <= after.vh,
+      `ends at ${after.bottom} of ${after.vh}`);
+    ok(`${label}: and the move line showed`, await page.locator('#moveOut').isVisible());
+    await ctx.close();
+  }
 }
 
 await browser.close();
