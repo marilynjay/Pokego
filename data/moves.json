@@ -516,6 +516,138 @@
     "class": "physical"
    }
   ],
+  "39": [
+   {
+    "name": "Bide",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Body Slam",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Covet",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Defense Curl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Disable",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Disarming Voice",
+    "type": "Fairy",
+    "class": "special"
+   },
+   {
+    "name": "Double Slap",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Double-Edge",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Echoed Voice",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Gyro Ball",
+    "type": "Steel",
+    "class": "physical"
+   },
+   {
+    "name": "Hyper Voice",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Play Nice",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Play Rough",
+    "type": "Fairy",
+    "class": "physical"
+   },
+   {
+    "name": "Pound",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Rest",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Rollout",
+    "type": "Rock",
+    "class": "physical"
+   },
+   {
+    "name": "Round",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Sing",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Spit Up",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Stockpile",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Swallow",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Sweet Kiss",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Wake-Up Slap",
+    "type": "Fighting",
+    "class": "physical"
+   }
+  ],
   "54": [
    {
     "name": "Amnesia",
@@ -1681,6 +1813,103 @@
    {
     "name": "Teleport",
     "type": "Psychic",
+    "class": "status"
+   }
+  ],
+  "151": [
+   {
+    "name": "Amnesia",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Ancient Power",
+    "type": "Rock",
+    "class": "special"
+   },
+   {
+    "name": "Aura Sphere",
+    "type": "Fighting",
+    "class": "special"
+   },
+   {
+    "name": "Barrier",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Confusion",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Imprison",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Life Dew",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Me First",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Mega Punch",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Metronome",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Nasty Plot",
+    "type": "Dark",
+    "class": "status"
+   },
+   {
+    "name": "Pound",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Psychic",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psywave",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Reflect Type",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Transform",
+    "type": "Normal",
     "class": "status"
    }
   ],

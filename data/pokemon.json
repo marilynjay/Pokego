@@ -210,6 +210,23 @@
       "types": [
         "Psychic"
       ]
+    },
+    {
+      "id": 39,
+      "name": "Jigglypuff",
+      "say": "JIG-lee-puff",
+      "types": [
+        "Normal",
+        "Fairy"
+      ]
+    },
+    {
+      "id": 151,
+      "name": "Mew",
+      "say": "MYOO",
+      "types": [
+        "Psychic"
+      ]
     }
   ]
 }
