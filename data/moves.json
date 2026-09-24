@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-22",
+ "generatedAt": "2026-09-24",
  "moves": {
   "1": [
    {
@@ -1136,6 +1136,118 @@
     "class": "special"
    }
   ],
+  "133": [
+   {
+    "name": "Baby-Doll Eyes",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Baton Pass",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Bite",
+    "type": "Dark",
+    "class": "physical"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Charm",
+    "type": "Fairy",
+    "class": "status"
+   },
+   {
+    "name": "Copycat",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Covet",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Double Kick",
+    "type": "Fighting",
+    "class": "physical"
+   },
+   {
+    "name": "Double-Edge",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Focus Energy",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Growl",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Helping Hand",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Last Resort",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Mimic",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Quick Attack",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Refresh",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Sand Attack",
+    "type": "Ground",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Tackle",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Tail Whip",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Take Down",
+    "type": "Normal",
+    "class": "physical"
+   },
+   {
+    "name": "Trump Card",
+    "type": "Normal",
+    "class": "special"
+   }
+  ],
   "134": [
    {
     "name": "Acid Armor",
@@ -1432,6 +1544,143 @@
    {
     "name": "Yawn",
     "type": "Normal",
+    "class": "status"
+   }
+  ],
+  "150": [
+   {
+    "name": "Agility",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Amnesia",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Ancient Power",
+    "type": "Rock",
+    "class": "special"
+   },
+   {
+    "name": "Aura Sphere",
+    "type": "Fighting",
+    "class": "special"
+   },
+   {
+    "name": "Barrier",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Calm Mind",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Confuse Ray",
+    "type": "Ghost",
+    "class": "status"
+   },
+   {
+    "name": "Confusion",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Disable",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Future Sight",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Guard Swap",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Laser Focus",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Life Dew",
+    "type": "Water",
+    "class": "status"
+   },
+   {
+    "name": "Me First",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Miracle Eye",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Mist",
+    "type": "Ice",
+    "class": "status"
+   },
+   {
+    "name": "Power Swap",
+    "type": "Psychic",
+    "class": "status"
+   },
+   {
+    "name": "Psybeam",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psych Up",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Psychic",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psycho Cut",
+    "type": "Psychic",
+    "class": "physical"
+   },
+   {
+    "name": "Psystrike",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Psywave",
+    "type": "Psychic",
+    "class": "special"
+   },
+   {
+    "name": "Recover",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Safeguard",
+    "type": "Normal",
+    "class": "status"
+   },
+   {
+    "name": "Swift",
+    "type": "Normal",
+    "class": "special"
+   },
+   {
+    "name": "Teleport",
+    "type": "Psychic",
     "class": "status"
    }
   ],

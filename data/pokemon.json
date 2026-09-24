@@ -194,6 +194,22 @@
       "types": [
         "Water"
       ]
+    },
+    {
+      "id": 133,
+      "name": "Eevee",
+      "say": "EE-vee",
+      "types": [
+        "Normal"
+      ]
+    },
+    {
+      "id": 150,
+      "name": "Mewtwo",
+      "say": "MYOO-too",
+      "types": [
+        "Psychic"
+      ]
     }
   ]
 }

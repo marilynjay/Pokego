@@ -127,6 +127,13 @@ console.log('\nthe moon ball house rule');
   await meet(page, 'Psyduck');
   await page.click('[data-ball="moon"]');
   ok('says no on Psyduck', (await page.locator('#hint').innerText()).includes("isn't one"));
+  // A Psychic type added later has to pick the rule up on its own, from its
+  // types in the data file, with no code change.
+  await page.click('#backFromMeet');
+  await meet(page, 'Mewtwo');
+  await page.click('[data-ball="moon"]');
+  ok('a newly added Psychic one qualifies too',
+    (await page.locator('#hint').innerText()).includes('good choice'));
   await ctx.close();
 }
 

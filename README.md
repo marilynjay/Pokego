@@ -8,7 +8,7 @@ It does not play the game. It watches, and rules on it.
 
 ## How a turn goes
 
-1. **Who did you find?** — 23 big picture buttons.
+1. **Who did you find?** — 25 big picture buttons.
 2. **Stats** get rolled: how it's feeling, how hard it is to catch (1–10), how
    strong it is (1–10), how much it's **wiggling** (1–10), and its type.
 3. **Berry?** — if she handed it one of the 3D-printed berries, tap it.
@@ -144,10 +144,13 @@ The real rule — a boost only for Pokémon that evolve with a Moon Stone —
 catches none of hers, so the Moon Ball would be a Poké Ball with a nicer
 paint job. The house rule instead: **it's the ball for the spooky and sparkly
 ones**, meaning anything Ghost, Fairy, Psychic or Dark. That's Gengar, Mimikyu,
-Mr. Mime, Snubbull, Espeon and Marshadow — six of the 23, so it's a real choice
-rather than an auto-win, and it's a rule a three-year-old can learn to predict.
-None of the Pokémon added since are Ghost, Fairy, Psychic or Dark, so the Moon
-Ball still points at exactly those six. The app says out loud which it is when you pick the ball, so she hears
+Mr. Mime, Snubbull, Espeon, Marshadow and Mewtwo — seven of the 25, so it's a
+real choice rather than an auto-win, and it's a rule a three-year-old can learn
+to predict.
+
+The rule reads types straight out of `data/pokemon.json`, so a Pokémon added
+later picks it up on its own with no code change — which is how Mewtwo joined
+the list. Add a Ghost or a Fairy and the Moon Ball covers it immediately. The app says out loud which it is when you pick the ball, so she hears
 the reason either way.
 
 Add a Ghost or Fairy to `data/pokemon.json` and the rule covers it with no code
@@ -250,7 +253,7 @@ would play nothing without the conversion to MP3.
 | Path | What it is |
 | --- | --- |
 | `index.html` | The whole app — markup, styles and logic |
-| `data/pokemon.json` | Her 23 catchable Pokémon |
+| `data/pokemon.json` | Her 25 catchable Pokémon |
 | `assets/art/` | Artwork, normal and shiny, committed rather than hotlinked |
 | `assets/cries/` | One MP3 cry each, converted from PokéAPI's Ogg |
 | `assets/icon.svg` | Home-screen icon, drawn by hand |
@@ -292,7 +295,7 @@ left the stage blank whenever the CDN was slow or unreachable — an empty box
 where the Pokémon should be, which is no good when the person looking at it
 can't read the name underneath. Every image, normal and shiny, now ships in
 `assets/art` and is served from the same place as the page, so the artwork is
-exactly as reliable as the app itself. It costs 5.9M in the repo, which at this
+exactly as reliable as the app itself. It costs 6.4M in the repo, which at this
 number of Pokémon is a bargain.
 
 If an image somehow still fails, the stage falls back to the name and the app
