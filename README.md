@@ -174,13 +174,27 @@ re-roll them, because it's the same animal she's still throwing at.
 ### Running away is the gentle version
 
 A Pokémon can only run **after** it has already broken out once, never on the
-first throw in a new room, never on a Nanab berry, never on a Master Ball, and
-never if you've switched it off in settings. The odds run from 4% to 13% with difficulty. It's phrased as *ran to
-another room*, not *fled*, and the button underneath says **She found it!** —
-so it starts a new game somewhere else in the house instead of ending this one.
+first throw in a new room, never on a Nanab berry, and never on a Master Ball.
+It's phrased as *ran to another room*, not *fled*, and the button underneath
+says **She found it!** — so it starts a new game somewhere else in the house
+instead of ending this one. That turns out to be the good bit, so it's worth
+having happen reasonably often.
 
-If it's a rough day, **Let them hide** turns it off entirely and nothing ever
-gets away.
+**Running to another room** in settings is a 0–10 slider, defaulting to 6:
+
+| Setting | Chance after a miss | |
+| --- | --- | --- |
+| 0 | never | nothing ever gets away |
+| 4 | 4–13% | what it used to be fixed at |
+| **6** | **6–20%** | **the default** |
+| 10 | 10–33% | |
+
+A hard Pokémon runs more readily than an easy one, which is why each level is a
+range rather than a single number. The slider spells out in words *and*
+percentages what the current setting means, so moving it shows you what you did.
+
+Anyone carrying the old on/off switch is migrated to 4 if it was on and 0 if it
+was off, rather than being silently moved to the new default.
 
 ### Sparkly ones
 

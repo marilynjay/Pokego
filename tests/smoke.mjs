@@ -49,7 +49,7 @@ async function open({ rng = [0.5], settings = {}, reducedMotion = 'reduce' } = {
     Math.random = () => rng[Math.min(i++, rng.length - 1)];
     try {
       if (localStorage.getItem('pokego.settings') === null) {
-        localStorage.setItem('pokego.settings', JSON.stringify(Object.assign({ shinyOdds: 0, sound: false, fleeing: true }, settings)));
+        localStorage.setItem('pokego.settings', JSON.stringify(Object.assign({ shinyOdds: 0, sound: false, hiding: 4 }, settings)));
       }
     } catch { /* ignore */ }
   }, { rng, settings });
@@ -238,7 +238,8 @@ console.log('\nthe collection stacks up');
   await throwWith(page, 'master');
   await page.click('#doneBtn');
   await page.click('#toCollection');
-  ok('three Charmanders are one card, not three', await page.locator('.stack').count() === 2);
+  ok('three Charmanders are one card, not three', await page.locator('.stack').count() === 2,
+    `${await page.locator('.stack').count()} stacks: ${(await page.locator('#collectionBody').innerText()).replace(/\n/g, ' | ')}`);
   ok('the card counts them', (await page.locator('.stack', { hasText: 'Charmander' }).innerText()).includes('3'));
   ok('the totals line reads right', (await page.locator('#collectionBody').innerText()).includes('4 caught'));
 
@@ -257,12 +258,12 @@ console.log('\nsettings stick');
   const { page, ctx } = await open();
   await page.click('#toSettings');
   await page.selectOption('#setShiny', '10');
-  await page.click('#setFlee');
+  await page.locator('#setHiding').fill('9');
   await page.reload();
   await page.waitForSelector('#pickGrid .pick');
   await page.click('#toSettings');
   ok('shiny odds survive a reload', await page.locator('#setShiny').inputValue() === '10');
-  ok('hiding stays switched off', await page.locator('#setFlee').getAttribute('aria-checked') === 'false');
+  ok('the hiding slider survives a reload', await page.locator('#setHiding').inputValue() === '9');
   await ctx.close();
 }
 
@@ -467,7 +468,7 @@ console.log('\nyou can tell which version you are running');
   await page.addInitScript(() => {
     window.setInterval = () => 0;
     try {
-      localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, fleeing: true, masterCooldown: 3 }));
+      localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, hiding: 4, masterCooldown: 3 }));
       localStorage.setItem('pokego.masterReadyAt', JSON.stringify(Date.now() + 120000));
     } catch { /* ignore */ }
   });
@@ -578,7 +579,7 @@ console.log('\nit all fits on one screen');
     await page.addInitScript(() => {
       let i = 0; const q = [0.5, 0.99, 0.5, 0.5, 0.99];
       Math.random = () => q[Math.min(i++, q.length - 1)];
-      try { localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, fleeing: true, masterCooldown: 3 })); } catch { /* ignore */ }
+      try { localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, hiding: 4, masterCooldown: 3 })); } catch { /* ignore */ }
     });
     await page.goto(URL);
     await page.waitForSelector('#pickGrid .pick');
@@ -619,6 +620,77 @@ console.log('\nit all fits on one screen');
     ok(`${label}: and the move line showed`, await page.locator('#moveOut').isVisible());
     await ctx.close();
   }
+}
+
+console.log('\nhow often they run off is a slider');
+{
+  // Difficulty 10, so the odds are 13% at level 4 and 33% at level 10. A hide
+  // roll of .20 falls between the two: same roll, different outcome.
+  const script = [0.5, 0.99, 0.5, 0.5, 0.99, 0.99, 0.2];
+  const low = await open({ rng: script, settings: { hiding: 4 } });
+  await meet(low.page, 'Gengar');
+  await throwWith(low.page, 'poke');
+  const lowSecond = await throwAgain(low.page);
+  ok('at the old setting that roll stays put', lowSecond.includes('broke out'), lowSecond);
+  await low.ctx.close();
+
+  const high = await open({ rng: script, settings: { hiding: 10 } });
+  await meet(high.page, 'Gengar');
+  await throwWith(high.page, 'poke');
+  const highSecond = await throwAgain(high.page);
+  ok('turned up, the very same roll runs off', highSecond.includes('another room'), highSecond);
+  await high.ctx.close();
+}
+{
+  // Zero has to mean never, whatever the roll says.
+  const { page, ctx } = await open({ rng: [0.5, 0.99, 0.5, 0.5, 0.99, 0.99, 0.0], settings: { hiding: 0 } });
+  await meet(page, 'Gengar');
+  await throwWith(page, 'poke');
+  const second = await throwAgain(page);
+  ok('at zero nothing ever gets away', second.includes('broke out'), second);
+  await page.click('#doneBtn');
+  await page.click('#toSettings');
+  ok('and it says so in words', /nothing ever gets away/i.test(await page.locator('#hidingWhat').innerText()),
+    await page.locator('#hidingWhat').innerText());
+  await ctx.close();
+}
+{
+  const { page, ctx } = await open();
+  await page.click('#toSettings');
+  await page.locator('#setHiding').fill('0');
+  ok('the label reads Never at zero', (await page.locator('#hidingLive').innerText()).trim() === 'Never');
+  await page.locator('#setHiding').fill('10');
+  ok('and Lots at ten', (await page.locator('#hidingLive').innerText()).trim() === 'Lots');
+  const what = await page.locator('#hidingWhat').innerText();
+  ok('and spells out the real odds', /10–33%/.test(what), what);
+  await ctx.close();
+}
+{
+  // Anyone who had the old on/off switch keeps what they chose.
+  for (const [was, expect] of [[true, '4'], [false, '0']]) {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.addInitScript((was) => {
+      try { localStorage.setItem('pokego.settings', JSON.stringify({ shinyOdds: 0, sound: false, fleeing: was })); } catch { /* ignore */ }
+    }, was);
+    await page.goto(URL);
+    await page.waitForSelector('#pickGrid .pick');
+    await page.click('#toSettings');
+    ok(`an old "let them hide = ${was}" becomes ${expect}`,
+      await page.locator('#setHiding').inputValue() === expect,
+      await page.locator('#setHiding').inputValue());
+    await ctx.close();
+  }
+}
+{
+  // A fresh install gets the new, slightly livelier default.
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(URL);
+  await page.waitForSelector('#pickGrid .pick');
+  await page.click('#toSettings');
+  ok('a fresh install defaults to 6', await page.locator('#setHiding').inputValue() === '6');
+  await ctx.close();
 }
 
 await browser.close();

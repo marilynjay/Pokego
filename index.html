@@ -233,6 +233,27 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .setting .txt small { display: block; color: var(--dim); font-size: .85rem; font-weight: 400; }
 .setting label { font-weight: 650; }
 select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel); color: inherit; min-height: 48px; }
+.setting.slider { display: block; }
+/* The other rows wrap their description in .txt; this one has no room for a
+   wrapper, so it needs the same treatment directly. */
+.setting.slider small { display: block; color: var(--dim); font-size: .85rem; font-weight: 400; margin-top: 2px; }
+.setting.slider .live { float: right; font-weight: 700; color: var(--accent); font-size: .92rem; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; margin: 12px 0 2px;
+  height: 30px; background: none; accent-color: var(--accent);
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: var(--line); }
+input[type="range"]::-moz-range-track { height: 10px; border-radius: 5px; background: var(--line); }
+/* A 32px thumb: this is a slider on a phone, dragged with a thumb, not a mouse. */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 32px; height: 32px; margin-top: -11px;
+  border-radius: 50%; background: var(--accent); border: 3px solid var(--panel);
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--accent);
+  border: 3px solid var(--panel); box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
 .switch { width: 64px; height: 38px; flex: none; border-radius: 999px; background: var(--line); position: relative; transition: background .15s; }
 .switch[aria-checked="true"] { background: var(--good); }
 .switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 30px; height: 30px; border-radius: 50%; background: #fff; transition: transform .15s; }
@@ -330,9 +351,10 @@ select { font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px sol
         <div class="txt"><label id="lbSound">Sounds</label><small>Cries, and a different noise for caught, breaks out and hides.</small></div>
         <button class="switch" id="setSound" role="switch" aria-labelledby="lbSound"></button>
       </div>
-      <div class="setting">
-        <div class="txt"><label id="lbFlee">Let them hide</label><small>Off means they only ever break out — nothing ever gets away.</small></div>
-        <button class="switch" id="setFlee" role="switch" aria-labelledby="lbFlee"></button>
+      <div class="setting slider">
+        <label for="setHiding">Running to another room<span class="live" id="hidingLive"></span></label>
+        <small id="hidingWhat"></small>
+        <input type="range" id="setHiding" min="0" max="10" step="1">
       </div>
     </div>
     <div class="row"><button class="btn quiet" id="resetBtn">Reset everything she's caught</button></div>
@@ -371,7 +393,11 @@ const store = {
   },
 };
 
-const settings = Object.assign({ shinyOdds: 50, sound: true, fleeing: true, masterCooldown: 3 }, store.get('settings', {}));
+const stored = store.get('settings', {});
+// `fleeing` used to be a yes/no switch. Anyone carrying one gets the matching
+// point on the scale rather than the new default.
+if (stored.hiding === undefined && stored.fleeing !== undefined) stored.hiding = stored.fleeing ? 4 : 0;
+const settings = Object.assign({ shinyOdds: 50, sound: true, hiding: 6, masterCooldown: 3 }, stored);
 // caught: { "25": { n: 12, hearts: 3 } }   shinies are counted separately so a
 // shelf of twelve Charmanders never buries the one sparkly one.
 let caught = store.get('caught', {});
@@ -441,6 +467,14 @@ const wriggleFactor = (wriggle, calmed) => (calmed ? 1 + 0.2 * wriggle : 1 - 0.0
 // Pokémon converges on a catch instead of asking a three-year-old for twenty
 // throws, and nobody has to reach for the Master Ball to end a losing streak.
 const MISS_STEP = 0.1, MISS_CAP = 0.75;
+
+// How likely a miss ends with it running off, on the 0-10 scale in settings.
+// 4 is what this used to be fixed at; 6 is the default now, because a getaway
+// sends her off to hunt through the house and that turned out to be the good
+// bit. A hard Pokémon runs more readily than an easy one.
+const hideOdds = (difficulty, level) => (0.03 + difficulty * 0.01) * level / 4;
+const HIDING_WORDS = ['Never', 'Hardly ever', 'Hardly ever', 'Rarely', 'Rarely',
+                      'Sometimes', 'Sometimes', 'Often', 'Often', 'Lots', 'Lots'];
 
 // What she should actually do about it. Keyed on the move's type, because that
 // is what decides whether it is a shower of sparks or a faceful of sludge.
@@ -769,8 +803,8 @@ function resolve() {
   // berry, and never if a grown-up switched hiding off.
   // Needs a miss to its name, and never on the first throw of a fresh room —
   // two getaways in a row would just be mean.
-  const canHide = settings.fleeing && current.throws > 1 && current.misses > 0 && !berry?.calms;
-  const hideChance = 0.03 + current.difficulty * 0.01;
+  const canHide = settings.hiding > 0 && current.throws > 1 && current.misses > 0 && !berry?.calms;
+  const hideChance = hideOdds(current.difficulty, settings.hiding);
   if (canHide && Math.random() < hideChance) return { outcome: 'hid', wobbles: 1 };
 
   const margin = roll - chance;
@@ -976,7 +1010,19 @@ function paintSettings() {
   $('setShiny').value = String(settings.shinyOdds);
   $('setCooldown').value = String(settings.masterCooldown);
   $('setSound').setAttribute('aria-checked', String(settings.sound));
-  $('setFlee').setAttribute('aria-checked', String(settings.fleeing));
+  $('setHiding').value = String(settings.hiding);
+  paintHiding();
+}
+// Says what the number actually means, in both words and odds — the whole point
+// of a slider is being able to see what moving it did.
+function paintHiding() {
+  const level = Number(settings.hiding);
+  $('hidingLive').textContent = HIDING_WORDS[level];
+  $('hidingWhat').textContent = level === 0
+    ? 'They only ever break out. Nothing ever gets away.'
+    : `After a Pokémon has already wriggled out once, about `
+      + `${Math.round(hideOdds(1, level) * 100)}–${Math.round(hideOdds(10, level) * 100)}% `
+      + `of misses end with it running off. A Nanab berry still stops it.`;
 }
 $('setShiny').addEventListener('change', (e) => { settings.shinyOdds = Number(e.target.value); sinceShiny = 0; saveAll(); });
 $('setCooldown').addEventListener('change', (e) => {
@@ -985,7 +1031,11 @@ $('setCooldown').addEventListener('change', (e) => {
   saveAll(); paintMaster();
 });
 $('setSound').addEventListener('click', () => { settings.sound = !settings.sound; saveAll(); paintSettings(); if (settings.sound) sfx.tick(); });
-$('setFlee').addEventListener('click', () => { settings.fleeing = !settings.fleeing; saveAll(); paintSettings(); });
+$('setHiding').addEventListener('input', (e) => {
+  settings.hiding = Number(e.target.value);
+  paintHiding();            // on input, so it updates under her thumb
+});
+$('setHiding').addEventListener('change', () => saveAll());
 $('resetBtn').addEventListener('click', () => {
   if (!confirm('Forget every Pokémon she has caught? This cannot be undone.')) return;
   caught = {}; shinyCaught = {}; shinyWaiting = []; sinceShiny = 0; masterReadyAt = 0;
